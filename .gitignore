@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnp.*
+
+# Build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local env files (NEVER commit)
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Vercel
+.vercel/
+
+# Supabase local artifacts
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# Test artifacts
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+lighthouse-ci/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Graphify output (artifacts stay local)
+graphify-out/
+
+# Secrets — never commit
+*.pem
+*.key
+service-account*.json
