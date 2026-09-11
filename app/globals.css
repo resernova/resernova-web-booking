@@ -1,0 +1,109 @@
+/**
+ * Global CSS — Tailwind v4 @theme block (token-first).
+ * Component styles below follow BEM-lite naming: .component-name__element--modifier.
+ */
+
+@import "tailwindcss";
+
+@theme {
+  /* Primitive colors */
+  --color-primary-50: #E0F2F2;
+  --color-primary-100: #B3E0E1;
+  --color-primary-200: #80CDCE;
+  --color-primary-300: #4DB9BB;
+  --color-primary-400: #26A6A8;
+  --color-primary-500: #1C6B6D;
+  --color-primary-600: #124548;
+  --color-primary-700: #0D3335;
+
+  --color-accent-500: #25D366;
+  --color-accent-600: #128C7E;
+
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F4FAFA;
+  --color-surface-elevated: #FFFFFF;
+
+  --color-text: #1A1A2E;
+  --color-text-muted: #5A6573;
+  --color-text-inverse: #FFFFFF;
+
+  --color-error: #E53935;
+  --color-warning: #FF9F43;
+  --color-success: #25D366;
+  --color-info: #1C6B6D;
+
+  --color-border: #E0E5E8;
+  --color-border-strong: #B0B8BC;
+
+  /* Typography */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-poppins), var(--font-inter), system-ui, sans-serif;
+
+  /* Radii */
+  --radius-hero: 36px;
+
+  /* Shadows */
+  --shadow-card: 0 8px 24px -12px rgba(28, 107, 109, 0.25), 0 -4px 16px -8px rgba(255, 255, 255, 0.4);
+  --shadow-button: 0 4px 16px -8px rgba(28, 107, 109, 0.45);
+  --shadow-glass: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  --shadow-modal: 0 24px 64px -16px rgba(28, 107, 109, 0.35);
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.2s ease-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Base */
+html, body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-surface-muted);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Glassmorphism utility — used by HeroHeader, Modal, Card.surface */
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-glass);
+}
+
+.gradient-hero {
+  background-image: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-400) 50%, var(--color-primary-300) 100%);
+}
+
+/* RTL support (ar-Darija) */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Honeypot field — visually hidden but in DOM */
+.honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
