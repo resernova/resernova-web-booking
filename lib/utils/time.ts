@@ -15,7 +15,9 @@ const RAMADAN_YEARS: Record<number, { start: string; end: string }> = {
   // TODO: refresh yearly — set a cron reminder
 };
 
-export function isInRamadan(date: DateTime = DateTime.now().setZone(CASABLANCA_TZ)): boolean {
+export function isInRamadan(
+  date: DateTime = DateTime.now().setZone(CASABLANCA_TZ),
+): boolean {
   const y = date.year;
   const window = RAMADAN_YEARS[y];
   if (!window) return false;
@@ -27,7 +29,9 @@ export function isInRamadan(date: DateTime = DateTime.now().setZone(CASABLANCA_T
 /** Hour-of-day pairs during which sending messages would be intrusive.
  * Within Ramadan: 12:00-14:00 (post-lunch) + 18:00-20:00 (iftar).
  * Outside Ramadan: no silent hours. */
-export function isSilentHour(date: DateTime = DateTime.now().setZone(CASABLANCA_TZ)): boolean {
+export function isSilentHour(
+  date: DateTime = DateTime.now().setZone(CASABLANCA_TZ),
+): boolean {
   if (!isInRamadan(date)) return false;
   const h = date.hour;
   return (h >= 12 && h < 14) || (h >= 18 && h < 20);
@@ -61,12 +65,28 @@ export function nowCasablanca(): DateTime {
  */
 
 export type DayWindow = { open: string; close: string };
-export type WeeklyAvailability = Partial<Record<
-  "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday",
-  DayWindow | null
->>;
+export type WeeklyAvailability = Partial<
+  Record<
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday",
+    DayWindow | null
+  >
+>;
 
-const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
+const DAY_KEYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
 type DayKey = (typeof DAY_KEYS)[number];
 
 export function normalizeAvailability(raw: unknown): WeeklyAvailability {
@@ -147,7 +167,11 @@ export function openToday(
   const closeHHMM = close.hour * 60 + close.minute;
 
   if (refHHMM < openHHMM) {
-    return { isOpen: false, opensAt: window.open, closedReason: "not_yet_open" };
+    return {
+      isOpen: false,
+      opensAt: window.open,
+      closedReason: "not_yet_open",
+    };
   }
   if (refHHMM >= closeHHMM) {
     return { isOpen: false, closedReason: "closed_for_day" };
@@ -170,7 +194,10 @@ export function formatSlot(dateIso: string, locale: string = "fr-MA"): string {
   return dt.setLocale(locale).toFormat("HH:mm");
 }
 
-export function formatSlotLong(dateIso: string, locale: string = "fr-MA"): string {
+export function formatSlotLong(
+  dateIso: string,
+  locale: string = "fr-MA",
+): string {
   const dt = DateTime.fromISO(dateIso, { zone: "utc" }).setZone(CASABLANCA_TZ);
   return dt.setLocale(locale).toFormat("HH'h'mm");
 }

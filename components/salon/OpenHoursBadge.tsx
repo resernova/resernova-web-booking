@@ -2,7 +2,7 @@
  * OpenHoursBadge — "Open today until 19:00" / "Closed today" / "Opens at 10:00".
  * Server component; takes parsed availability JSON.
  */
-import { openToday, type WeeklyAvailability } from "@/lib/utils/time";
+import { openToday } from "@/lib/utils/time";
 
 type Props = {
   availability: unknown;
@@ -15,19 +15,31 @@ const labels = {
     open: "Ouvert aujourd'hui jusqu'à",
     opensAt: "Ouvre aujourd'hui à",
     closed: "Fermé aujourd'hui",
-    closedReason: { not_yet_open: "Pas encore ouvert", closed_today: "Fermé", closed_for_day: "Fermé pour la journée" },
+    closedReason: {
+      not_yet_open: "Pas encore ouvert",
+      closed_today: "Fermé",
+      closed_for_day: "Fermé pour la journée",
+    },
   },
   en: {
     open: "Open today until",
     opensAt: "Opens today at",
     closed: "Closed today",
-    closedReason: { not_yet_open: "Not yet open", closed_today: "Closed", closed_for_day: "Closed for the day" },
+    closedReason: {
+      not_yet_open: "Not yet open",
+      closed_today: "Closed",
+      closed_for_day: "Closed for the day",
+    },
   },
   ar: {
     open: "مفتوح اليوم حتى",
     opensAt: "يفتح اليوم على",
     closed: "مغلق اليوم",
-    closedReason: { not_yet_open: "لم يفتح بعد", closed_today: "مغلق", closed_for_day: "أغلق اليوم" },
+    closedReason: {
+      not_yet_open: "لم يفتح بعد",
+      closed_today: "مغلق",
+      closed_for_day: "أغلق اليوم",
+    },
   },
 };
 

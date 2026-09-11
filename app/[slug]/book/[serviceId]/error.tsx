@@ -6,10 +6,15 @@
 export default function WizardError({
   error,
   reset,
-}: { error: Error; reset: () => void }) {
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <h1 className="font-display text-2xl font-semibold">Une erreur est survenue</h1>
+      <h1 className="font-display text-2xl font-semibold">
+        Une erreur est survenue
+      </h1>
       <p className="mt-3 text-[var(--color-text-muted)]">
         {error.message ?? "Impossible de charger cette page."}
       </p>

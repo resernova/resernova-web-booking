@@ -14,7 +14,10 @@ import { HeroHeader } from "@/components/salon/HeroHeader";
 import { OpenHoursBadge } from "@/components/salon/OpenHoursBadge";
 import { WhatsAppDeepLinkButton } from "@/components/salon/WhatsAppDeepLinkButton";
 import { ServiceCard } from "@/components/salon/ServiceCard";
-import { getSalonBySlug, getSalonLocation } from "@/server/queries/getSalonBySlug";
+import {
+  getSalonBySlug,
+  getSalonLocation,
+} from "@/server/queries/getSalonBySlug";
 import { getPublishedServices } from "@/server/queries/getPublishedServices";
 import Link from "next/link";
 
@@ -23,23 +26,35 @@ type RouteParams = { slug: string };
 export const revalidate = 60;
 export const dynamicParams = true;
 
-export async function generateMetadata({ params }: { params: Promise<RouteParams> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<RouteParams>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const salon = await getSalonBySlug(slug);
   if (!salon) return { title: "Salon introuvable" };
 
   return {
     title: salon.businessName,
-    description: salon.description ?? `Réservez votre rendez-vous chez ${salon.businessName}`,
+    description:
+      salon.description ??
+      `Réservez votre rendez-vous chez ${salon.businessName}`,
     openGraph: {
       title: salon.businessName,
       description: salon.description ?? `Réservez chez ${salon.businessName}`,
-      images: salon.heroImageUrl ? [{ url: salon.heroImageUrl, width: 1200, height: 630 }] : undefined,
+      images: salon.heroImageUrl
+        ? [{ url: salon.heroImageUrl, width: 1200, height: 630 }]
+        : undefined,
     },
   };
 }
 
-export default async function SalonProfilePage({ params }: { params: Promise<RouteParams> }) {
+export default async function SalonProfilePage({
+  params,
+}: {
+  params: Promise<RouteParams>;
+}) {
   const { slug } = await params;
   const salon = await getSalonBySlug(slug);
   if (!salon) notFound();
@@ -83,7 +98,9 @@ export default async function SalonProfilePage({ params }: { params: Promise<Rou
         {/* Services preview */}
         <section className="mt-10">
           <div className="mb-5 flex items-baseline justify-between">
-            <h2 className="font-display text-2xl font-semibold">Nos services</h2>
+            <h2 className="font-display text-2xl font-semibold">
+              Nos services
+            </h2>
             {services.length > 3 && (
               <Link
                 href={`/${salon.publicSlug}/services`}
@@ -101,7 +118,10 @@ export default async function SalonProfilePage({ params }: { params: Promise<Rou
           ) : (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {preview.map((s) => {
-                const photo = Array.isArray(s.photos) && s.photos.length > 0 ? s.photos[0] : null;
+                const photo =
+                  Array.isArray(s.photos) && s.photos.length > 0
+                    ? s.photos[0]
+                    : null;
                 return (
                   <ServiceCard
                     key={s.id}
@@ -123,7 +143,9 @@ export default async function SalonProfilePage({ params }: { params: Promise<Rou
         {location?.address && (
           <section className="mt-10 mb-12 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-card">
             <h2 className="font-display text-lg font-semibold">Adresse</h2>
-            <p className="mt-2 text-[var(--color-text-muted)]">{location.address}</p>
+            <p className="mt-2 text-[var(--color-text-muted)]">
+              {location.address}
+            </p>
           </section>
         )}
       </div>

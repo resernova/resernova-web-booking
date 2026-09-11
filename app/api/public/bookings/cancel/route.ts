@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { success: false, error: { code: "INVALID_INPUT", message: "Invalid JSON" } },
+      {
+        success: false,
+        error: { code: "INVALID_INPUT", message: "Invalid JSON" },
+      },
       { status: 400 },
     );
   }
@@ -46,10 +49,14 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     const code = mapPgErrorToApiError(error.message);
-    const status = code === "INVALID_TOKEN" ? 401
-                 : code === "BOOKING_NOT_FOUND" ? 404
-                 : code === "BOOKING_ALREADY_FINALIZED" ? 409
-                 : 400;
+    const status =
+      code === "INVALID_TOKEN"
+        ? 401
+        : code === "BOOKING_NOT_FOUND"
+          ? 404
+          : code === "BOOKING_ALREADY_FINALIZED"
+            ? 409
+            : 400;
     return NextResponse.json(
       { success: false, error: { code, message: error.message } },
       { status },
@@ -62,9 +69,12 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 200 });
 }
 
-function mapPgErrorToApiError(message: string): import("@/lib/validation/schemas").ApiErrorCode {
+function mapPgErrorToApiError(
+  message: string,
+): import("@/lib/validation/schemas").ApiErrorCode {
   if (message.includes("INVALID_TOKEN")) return "INVALID_TOKEN";
   if (message.includes("BOOKING_NOT_FOUND")) return "BOOKING_NOT_FOUND";
-  if (message.includes("BOOKING_ALREADY_FINALIZED")) return "BOOKING_ALREADY_FINALIZED";
+  if (message.includes("BOOKING_ALREADY_FINALIZED"))
+    return "BOOKING_ALREADY_FINALIZED";
   return "INTERNAL";
 }

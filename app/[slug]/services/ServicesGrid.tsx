@@ -18,14 +18,43 @@ type Props = {
 };
 
 const labels = {
-  fr: { all: "Tous", sortBy: "Trier par", sortPriceAsc: "Prix ↑", sortPriceDesc: "Prix ↓", sortDurationAsc: "Durée ↑", sortName: "Nom", empty: "Aucun service dans cette catégorie." },
-  en: { all: "All", sortBy: "Sort by", sortPriceAsc: "Price ↑", sortPriceDesc: "Price ↓", sortDurationAsc: "Duration ↑", sortName: "Name", empty: "No services in this category." },
-  ar: { all: "الكل", sortBy: "ترتيب حسب", sortPriceAsc: "السعر ↑", sortPriceDesc: "السعر ↓", sortDurationAsc: "المدة ↑", sortName: "الاسم", empty: "لا توجد خدمات في هذه الفئة." },
+  fr: {
+    all: "Tous",
+    sortBy: "Trier par",
+    sortPriceAsc: "Prix ↑",
+    sortPriceDesc: "Prix ↓",
+    sortDurationAsc: "Durée ↑",
+    sortName: "Nom",
+    empty: "Aucun service dans cette catégorie.",
+  },
+  en: {
+    all: "All",
+    sortBy: "Sort by",
+    sortPriceAsc: "Price ↑",
+    sortPriceDesc: "Price ↓",
+    sortDurationAsc: "Duration ↑",
+    sortName: "Name",
+    empty: "No services in this category.",
+  },
+  ar: {
+    all: "الكل",
+    sortBy: "ترتيب حسب",
+    sortPriceAsc: "السعر ↑",
+    sortPriceDesc: "السعر ↓",
+    sortDurationAsc: "المدة ↑",
+    sortName: "الاسم",
+    empty: "لا توجد خدمات في هذه الفئة.",
+  },
 };
 
 type SortKey = "price-asc" | "price-desc" | "duration-asc" | "name";
 
-export function ServicesGrid({ slug, services, categories, locale = "fr" }: Props) {
+export function ServicesGrid({
+  slug,
+  services,
+  categories,
+  locale = "fr",
+}: Props) {
   const t = labels[locale];
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("price-asc");
@@ -35,10 +64,18 @@ export function ServicesGrid({ slug, services, categories, locale = "fr" }: Prop
     if (activeCat) list = list.filter((s) => s.categoryId === activeCat);
     const sorted = [...list];
     switch (sortKey) {
-      case "price-asc":   sorted.sort((a, b) => a.price - b.price); break;
-      case "price-desc":  sorted.sort((a, b) => b.price - a.price); break;
-      case "duration-asc": sorted.sort((a, b) => a.durationMinutes - b.durationMinutes); break;
-      case "name":        sorted.sort((a, b) => a.name.localeCompare(b.name, locale)); break;
+      case "price-asc":
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case "duration-asc":
+        sorted.sort((a, b) => a.durationMinutes - b.durationMinutes);
+        break;
+      case "name":
+        sorted.sort((a, b) => a.name.localeCompare(b.name, locale));
+        break;
     }
     return sorted;
   }, [services, activeCat, sortKey, locale]);
@@ -76,7 +113,9 @@ export function ServicesGrid({ slug, services, categories, locale = "fr" }: Prop
 
       {/* Sort dropdown */}
       <div className="mb-4 flex items-center justify-end gap-2 text-sm">
-        <label htmlFor="sort" className="text-[var(--color-text-muted)]">{t.sortBy}</label>
+        <label htmlFor="sort" className="text-[var(--color-text-muted)]">
+          {t.sortBy}
+        </label>
         <select
           id="sort"
           value={sortKey}
@@ -98,7 +137,10 @@ export function ServicesGrid({ slug, services, categories, locale = "fr" }: Prop
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {filtered.map((s) => {
-            const photo = Array.isArray(s.photos) && s.photos.length > 0 ? s.photos[0] : null;
+            const photo =
+              Array.isArray(s.photos) && s.photos.length > 0
+                ? s.photos[0]
+                : null;
             return (
               <ServiceCard
                 key={s.id}

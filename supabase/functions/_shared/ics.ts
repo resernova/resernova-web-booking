@@ -73,15 +73,21 @@ export function buildIcs(event: IcsEvent): string {
     foldLine(`SUMMARY:${escapeIcs(event.summary)}`),
   ];
 
-  if (event.description) lines.push(foldLine(`DESCRIPTION:${escapeIcs(event.description)}`));
-  if (event.location) lines.push(foldLine(`LOCATION:${escapeIcs(event.location)}`));
+  if (event.description)
+    lines.push(foldLine(`DESCRIPTION:${escapeIcs(event.description)}`));
+  if (event.location)
+    lines.push(foldLine(`LOCATION:${escapeIcs(event.location)}`));
 
-  lines.push(foldLine(
-    `ORGANIZER;CN=${escapeIcs(event.organizerName)}${event.organizerEmail ? `:mailto:${event.organizerEmail}` : ""}`,
-  ));
-  lines.push(foldLine(
-    `ATTENDEE;CN=${escapeIcs(event.attendeeName)};RSVP=TRUE${event.attendeeEmail ? `:mailto:${event.attendeeEmail}` : ""}`,
-  ));
+  lines.push(
+    foldLine(
+      `ORGANIZER;CN=${escapeIcs(event.organizerName)}${event.organizerEmail ? `:mailto:${event.organizerEmail}` : ""}`,
+    ),
+  );
+  lines.push(
+    foldLine(
+      `ATTENDEE;CN=${escapeIcs(event.attendeeName)};RSVP=TRUE${event.attendeeEmail ? `:mailto:${event.attendeeEmail}` : ""}`,
+    ),
+  );
   lines.push("STATUS:CONFIRMED");
   lines.push("TRANSP:OPAQUE");
   lines.push("END:VEVENT");

@@ -54,8 +54,14 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^2.1.8",
+    "@next/eslint-plugin-next": "^16.3.4",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "ajv": "^6.14.0",
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.3.4",
+    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "postcss": "^8.5.28",
@@ -71,7 +77,12 @@
   },
   "packageManager": "pnpm@9.0.0",
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": ["prettier --write", "eslint --fix"],
-    "*.{json,md,yml,yaml,css}": ["prettier --write"]
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
   }
 }

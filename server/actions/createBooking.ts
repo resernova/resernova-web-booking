@@ -16,9 +16,15 @@ import {
   type ApiErrEnvelope,
 } from "@/lib/validation/schemas";
 
-export async function createBooking(
-  request: unknown,
-): Promise<ApiOkEnvelope<{ bookingId: string; status: string; manageToken: string; reused: boolean }> | ApiErrEnvelope> {
+export async function createBooking(request: unknown): Promise<
+  | ApiOkEnvelope<{
+      bookingId: string;
+      status: string;
+      manageToken: string;
+      reused: boolean;
+    }>
+  | ApiErrEnvelope
+> {
   // 1. Validate payload
   const parsed = CreateBookingRequest.safeParse(request);
   if (!parsed.success) {
@@ -66,14 +72,21 @@ export async function createBooking(
       error: {
         code,
         message: error.message,
-        ...(code === "SLOT_TAKEN" ? { suggestedSlots: extractSuggestedSlots(error) } : {}),
+        ...(code === "SLOT_TAKEN"
+          ? { suggestedSlots: extractSuggestedSlots(error) }
+          : {}),
       },
     };
   }
 
   // RPC returns JSONB envelope; pass through
   if (data && typeof data === "object" && "success" in data) {
-    return data as ApiOkEnvelope<{ bookingId: string; status: string; manageToken: string; reused: boolean }>;
+    return data as ApiOkEnvelope<{
+      bookingId: string;
+      status: string;
+      manageToken: string;
+      reused: boolean;
+    }>;
   }
 
   return {
@@ -82,19 +95,24 @@ export async function createBooking(
   };
 }
 
-function mapPgErrorToApiError(message: string): import("@/lib/validation/schemas").ApiErrorCode {
+function mapPgErrorToApiError(
+  message: string,
+): import("@/lib/validation/schemas").ApiErrorCode {
   if (message.includes("PROVIDER_NOT_FOUND")) return "PROVIDER_NOT_FOUND";
   if (message.includes("PROVIDER_DISABLED")) return "PROVIDER_DISABLED";
   if (message.includes("SERVICE_NOT_FOUND")) return "SERVICE_NOT_FOUND";
   if (message.includes("SLOT_IN_PAST")) return "SLOT_IN_PAST";
-  if (message.includes("SLOT_DURATION_MISMATCH")) return "SLOT_DURATION_MISMATCH";
+  if (message.includes("SLOT_DURATION_MISMATCH"))
+    return "SLOT_DURATION_MISMATCH";
   if (message.includes("SLOT_TAKEN")) return "SLOT_TAKEN";
   if (message.includes("INVALID_INPUT")) return "INVALID_INPUT";
   if (message.includes("RATE_LIMITED")) return "RATE_LIMITED";
   return "INTERNAL";
 }
 
-function extractSuggestedSlots(_error: unknown): Array<{ slotStart: string; slotEnd: string }> | undefined {
+function extractSuggestedSlots(
+  _error: unknown,
+): Array<{ slotStart: string; slotEnd: string }> | undefined {
   // TODO: when the RPC returns suggested slots via RAISE EXCEPTION, parse them here.
   // For now, return undefined — the wizard's SlotGrid will refetch on next render.
   return undefined;

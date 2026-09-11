@@ -25,7 +25,9 @@ export const getPublishedServices = unstable_cache(
     const supabase = await createServerAnonClient();
     const { data, error } = await supabase
       .from("services")
-      .select("id, name, description, price, duration_minutes, service_type, category_id, photos, availability, location_id")
+      .select(
+        "id, name, description, price, duration_minutes, service_type, category_id, photos, availability, location_id",
+      )
       .eq("provider_id", providerId)
       .eq("status", "published")
       .order("price", { ascending: true });
@@ -59,7 +61,9 @@ export async function getServiceById(serviceId: string) {
   const supabase = await createServerAnonClient();
   const { data, error } = await supabase
     .from("services")
-    .select("id, name, description, price, duration_minutes, service_type, category_id, photos, provider_id, location_id, availability")
+    .select(
+      "id, name, description, price, duration_minutes, service_type, category_id, photos, provider_id, location_id, availability",
+    )
     .eq("id", serviceId)
     .eq("status", "published")
     .maybeSingle();

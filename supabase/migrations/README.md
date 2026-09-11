@@ -6,20 +6,20 @@ This directory holds the 8 forward-only schema migrations + 4 `SECURITY DEFINER`
 
 Migrations apply in lexical order (Supabase CLI default — `supabase db push`).
 
-| # | File | Purpose | Dependencies |
-|---|---|---|---|
-| 011 | `011_web_booking_columns.sql` | Extend `service_providers` with `public_slug`, `web_booking_enabled`, `web_theme`, `web_meta` + slug format CHECK + partial UNIQUE | — |
-| 012 | `012_web_bookings_audit.sql` | `web_bookings` audit table + UNIQUE partial index on `idempotency_key` | — |
-| 013 | `013_web_rate_limits.sql` | `web_rate_limits` table + `pg_cron` purge every 15 min | — |
-| 014 | `014_bookings_source_web.sql` | Extend `bookings.source` CHECK to include `'web'` | — |
-| 015 | `015_web_public_views.sql` | PUBLIC VIEWS (`service_providers_public`, `provider_locations_public`) + GRANT to `anon` | 011 |
-| 016 | `016_clients_unique_phone.sql` | `UNIQUE(provider_id, phone_number)` on `clients` (pre-flight dedupe check) | — |
-| 017 | `017_manage_token.sql` | `generate_manage_token` + `verify_manage_token` (HMAC-SHA256, Vault key) | — |
-| 018 | `018_notifications_type_web_booking.sql` | Extend `notifications.type` CHECK to include `'web_booking'` | — |
-| 019 | `019_get_web_availability.sql` | RPC: `get_web_availability(slug, service_id, date, staff_id?)` — JSONB envelope, wraps `get_available_slots_v2` | 011, 015 |
-| 020 | `020_create_web_booking.sql` | RPC: `create_web_booking(slug, payload, idempotency_key, ip_hash?)` — idempotent, calls `upsert_client_by_phone`, fires `web-booking-notify` via `pg_net` | 011, 012, 014, 015, 016, 017 |
-| 021 | `021_cancel_web_booking.sql` | RPC: `cancel_web_booking(manage_token, reason?)` — HMAC-verified, rotates token | 017 |
-| 022 | `022_reschedule_web_booking.sql` | RPC: `reschedule_web_booking(manage_token, new_slot_start, new_slot_end)` — HMAC-verified, anti-overlap excluding self, rotates token | 017 |
+| #   | File                                     | Purpose                                                                                                                                                   | Dependencies                 |
+| --- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| 011 | `011_web_booking_columns.sql`            | Extend `service_providers` with `public_slug`, `web_booking_enabled`, `web_theme`, `web_meta` + slug format CHECK + partial UNIQUE                        | —                            |
+| 012 | `012_web_bookings_audit.sql`             | `web_bookings` audit table + UNIQUE partial index on `idempotency_key`                                                                                    | —                            |
+| 013 | `013_web_rate_limits.sql`                | `web_rate_limits` table + `pg_cron` purge every 15 min                                                                                                    | —                            |
+| 014 | `014_bookings_source_web.sql`            | Extend `bookings.source` CHECK to include `'web'`                                                                                                         | —                            |
+| 015 | `015_web_public_views.sql`               | PUBLIC VIEWS (`service_providers_public`, `provider_locations_public`) + GRANT to `anon`                                                                  | 011                          |
+| 016 | `016_clients_unique_phone.sql`           | `UNIQUE(provider_id, phone_number)` on `clients` (pre-flight dedupe check)                                                                                | —                            |
+| 017 | `017_manage_token.sql`                   | `generate_manage_token` + `verify_manage_token` (HMAC-SHA256, Vault key)                                                                                  | —                            |
+| 018 | `018_notifications_type_web_booking.sql` | Extend `notifications.type` CHECK to include `'web_booking'`                                                                                              | —                            |
+| 019 | `019_get_web_availability.sql`           | RPC: `get_web_availability(slug, service_id, date, staff_id?)` — JSONB envelope, wraps `get_available_slots_v2`                                           | 011, 015                     |
+| 020 | `020_create_web_booking.sql`             | RPC: `create_web_booking(slug, payload, idempotency_key, ip_hash?)` — idempotent, calls `upsert_client_by_phone`, fires `web-booking-notify` via `pg_net` | 011, 012, 014, 015, 016, 017 |
+| 021 | `021_cancel_web_booking.sql`             | RPC: `cancel_web_booking(manage_token, reason?)` — HMAC-verified, rotates token                                                                           | 017                          |
+| 022 | `022_reschedule_web_booking.sql`         | RPC: `reschedule_web_booking(manage_token, new_slot_start, new_slot_end)` — HMAC-verified, anti-overlap excluding self, rotates token                     | 017                          |
 
 ## Required Vault secrets
 

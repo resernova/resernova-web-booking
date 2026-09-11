@@ -21,7 +21,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://book.resernova.com"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://book.resernova.com",
+  ),
   title: {
     default: "ReserNova — Réservez votre rendez-vous",
     template: "%s · ReserNova",
@@ -45,9 +47,17 @@ export const viewport: Viewport = {
   themeColor: "#1C6B6D",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="fr" dir="ltr" className={`${inter.variable} ${poppins.variable}`}>
+    <html
+      lang="fr"
+      dir="ltr"
+      className={`${inter.variable} ${poppins.variable}`}
+    >
       <body className="min-h-dvh bg-surface-muted text-text antialiased">
         {children}
         <Toaster position="top-right" richColors closeButton />

@@ -27,7 +27,9 @@ export const getSalonBySlug = unstable_cache(
     const supabase = await createServerAnonClient();
     const { data, error } = await supabase
       .from("service_providers_public")
-      .select("id, public_slug, name, business_name, web_hero_image_url, web_description, web_theme, web_meta")
+      .select(
+        "id, public_slug, name, business_name, web_hero_image_url, web_description, web_theme, web_meta",
+      )
       .eq("public_slug", slug)
       .maybeSingle();
 

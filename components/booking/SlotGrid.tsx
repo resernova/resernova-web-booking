@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
-import { CASABLANCA_TZ, formatSlot } from "@/lib/utils/time";
+import { CASABLANCA_TZ } from "@/lib/utils/time";
 
 type Slot = { slot_start: string; slot_end: string; available_staff: string[] };
 
@@ -21,12 +21,35 @@ type Props = {
 };
 
 const labels = {
-  fr: { loading: "Chargement des créneaux...", empty: "Aucun créneau disponible ce jour", try: "Essayez une autre date", remaining: (n: number) => `${n} place${n > 1 ? "s" : ""} restante${n > 1 ? "s" : ""}` },
-  en: { loading: "Loading slots...", empty: "No slots available on this day", try: "Try another date", remaining: (n: number) => `${n} spot${n > 1 ? "s" : ""} left` },
-  ar: { loading: "جاري تحميل المواعيد...", empty: "لا توجد مواعيد متاحة في هذا اليوم", try: "جرب تاريخا آخر", remaining: (n: number) => `${n} مكان${n > 1 ? "" : ""} متبقي` },
+  fr: {
+    loading: "Chargement des créneaux...",
+    empty: "Aucun créneau disponible ce jour",
+    try: "Essayez une autre date",
+    remaining: (n: number) =>
+      `${n} place${n > 1 ? "s" : ""} restante${n > 1 ? "s" : ""}`,
+  },
+  en: {
+    loading: "Loading slots...",
+    empty: "No slots available on this day",
+    try: "Try another date",
+    remaining: (n: number) => `${n} spot${n > 1 ? "s" : ""} left`,
+  },
+  ar: {
+    loading: "جاري تحميل المواعيد...",
+    empty: "لا توجد مواعيد متاحة في هذا اليوم",
+    try: "جرب تاريخا آخر",
+    remaining: (n: number) => `${n} مكان${n > 1 ? "" : ""} متبقي`,
+  },
 };
 
-export function SlotGrid({ slug, serviceId, date, selectedSlot, onSlotChange, locale }: Props) {
+export function SlotGrid({
+  slug,
+  serviceId,
+  date,
+  selectedSlot,
+  onSlotChange,
+  locale,
+}: Props) {
   const t = labels[locale];
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,15 +88,20 @@ export function SlotGrid({ slug, serviceId, date, selectedSlot, onSlotChange, lo
         if (!cancelled) setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [slug, serviceId, date, t.empty]);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-[var(--color-text-muted)]">
         <div className="grid grid-cols-3 gap-2">
-          {[0,1,2,3,4,5,6,7,8].map((i) => (
-            <div key={i} className="size-16 animate-pulse rounded-2xl bg-zinc-100" />
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div
+              key={i}
+              className="size-16 animate-pulse rounded-2xl bg-zinc-100"
+            />
           ))}
         </div>
         <p className="text-sm">{t.loading}</p>
@@ -84,14 +112,20 @@ export function SlotGrid({ slug, serviceId, date, selectedSlot, onSlotChange, lo
   if (error || !slots || slots.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-zinc-50 p-6 text-center">
-        <p className="font-medium text-[var(--color-text-muted)]">{error ?? t.empty}</p>
+        <p className="font-medium text-[var(--color-text-muted)]">
+          {error ?? t.empty}
+        </p>
         <p className="mt-1 text-xs text-[var(--color-text-muted)]">{t.try}</p>
       </div>
     );
   }
 
   return (
-    <div role="radiogroup" aria-label="Available time slots" className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+    <div
+      role="radiogroup"
+      aria-label="Available time slots"
+      className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+    >
       {slots.map((slot) => {
         const isSelected =
           selectedSlot?.start === slot.slot_start &&
@@ -107,7 +141,9 @@ export function SlotGrid({ slug, serviceId, date, selectedSlot, onSlotChange, lo
             type="button"
             role="radio"
             aria-checked={isSelected}
-            onClick={() => onSlotChange({ start: slot.slot_start, end: slot.slot_end })}
+            onClick={() =>
+              onSlotChange({ start: slot.slot_start, end: slot.slot_end })
+            }
             className={`relative flex flex-col items-center rounded-2xl border-2 px-2 py-3 text-center transition-all ${
               isSelected
                 ? "border-[var(--color-primary-500)] bg-[var(--color-primary-500)]/5 shadow-card"

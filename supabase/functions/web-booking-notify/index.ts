@@ -29,7 +29,8 @@ const processedBookings = new Set<string>();
 Deno.serve(async (req: Request) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-web-booking-signature",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-web-booking-signature",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
 
@@ -43,14 +44,23 @@ Deno.serve(async (req: Request) => {
   if (!expectedSecret) {
     console.error("[web-booking-notify] WEB_BOOKING_SIGNING_SECRET not set");
     return new Response(
-      JSON.stringify({ ok: false, error: "WEB_BOOKING_SIGNING_SECRET not configured" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      JSON.stringify({
+        ok: false,
+        error: "WEB_BOOKING_SIGNING_SECRET not configured",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
   }
   if (providedSecret !== expectedSecret) {
     return new Response(
       JSON.stringify({ ok: false, error: "Invalid signature" }),
-      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
   }
 
@@ -59,16 +69,19 @@ Deno.serve(async (req: Request) => {
   try {
     payload = await req.json();
   } catch {
-    return new Response(
-      JSON.stringify({ ok: false, error: "Invalid JSON" }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ ok: false, error: "Invalid JSON" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
   const { bookingId, slug } = payload;
   if (!bookingId || !slug) {
     return new Response(
       JSON.stringify({ ok: false, error: "Missing bookingId or slug" }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
   }
 
@@ -81,9 +94,13 @@ Deno.serve(async (req: Request) => {
 
   // 4. Idempotency — has this booking already been notified?
   if (processedBookings.has(bookingId)) {
-    return new Response(JSON.stringify({ ok: true, skipped: true, reason: "in_memory_dedup" }), {
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ ok: true, skipped: true, reason: "in_memory_dedup" }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
   const { data: existing } = await supabase
@@ -95,29 +112,38 @@ Deno.serve(async (req: Request) => {
 
   if (existing && existing.length > 0) {
     processedBookings.add(bookingId);
-    return new Response(JSON.stringify({ ok: true, skipped: true, reason: "already_notified" }), {
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ ok: true, skipped: true, reason: "already_notified" }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
   // 5. Fetch booking + service + provider + client via single JOIN
   const { data: booking, error: bookingErr } = await supabase
     .from("bookings")
-    .select(`
+    .select(
+      `
       id, client_name, client_phone, client_email, time_slot_start, time_slot_end,
       special_request, status, source,
       service:services(id, name, duration_minutes, price, provider_id),
       provider:service_providers(id, name, business_name, user_id)
-    `)
+    `,
+    )
     .eq("id", bookingId)
     .maybeSingle();
 
   if (bookingErr || !booking) {
     console.error("[web-booking-notify] booking lookup failed", bookingErr);
-    return new Response(JSON.stringify({ ok: false, error: "Booking not found" }), {
-      status: 200, // always 200 — RPC has committed
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ ok: false, error: "Booking not found" }),
+      {
+        status: 200, // always 200 — RPC has committed
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
   const service = (booking as any).service;
@@ -156,11 +182,13 @@ Deno.serve(async (req: Request) => {
             que vous recevrez ou contactez directement le salon.
           </p>
         `,
-        attachments: [{
-          filename: `reservation-${booking.id.slice(0, 8)}.ics`,
-          content: icsContent,
-          contentType: "text/calendar",
-        }],
+        attachments: [
+          {
+            filename: `reservation-${booking.id.slice(0, 8)}.ics`,
+            content: icsContent,
+            contentType: "text/calendar",
+          },
+        ],
       });
       console.log(`[web-booking-notify] email sent: ${emailId}`);
     } catch (e) {
@@ -190,7 +218,10 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (notifErr) {
-      console.error("[web-booking-notify] notification insert failed", notifErr);
+      console.error(
+        "[web-booking-notify] notification insert failed",
+        notifErr,
+      );
     } else {
       notificationId = notif?.id;
     }
@@ -213,16 +244,24 @@ Deno.serve(async (req: Request) => {
 
   processedBookings.add(bookingId);
 
-  return new Response(JSON.stringify({
-    ok: true,
-    notificationId,
-    emailId,
-    whatsappMessageId,
-  }), {
-    status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({
+      ok: true,
+      notificationId,
+      emailId,
+      whatsappMessageId,
+    }),
+    {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    },
+  );
 });
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }

@@ -58,16 +58,16 @@ resernova-web/
 
 Eight forward-only migrations in `supabase/migrations/` (lexical apply order):
 
-| # | File | Purpose |
-|---|---|---|
-| 011 | `web_booking_columns` | Extend `service_providers` with `public_slug`, `web_booking_enabled`, theme/meta |
-| 012 | `web_bookings_audit` | Audit table for web bookings (idempotency key, UTM, IP hash) |
-| 013 | `web_rate_limits` | Per-IP-per-slug rate limit + 15-min `pg_cron` purge |
-| 014 | `bookings_source_web` | Extend `bookings.source` CHECK to include `'web'` |
-| 015 | `web_public_views` | PUBLIC VIEWS for tenant lookup (instead of anon RLS) |
-| 016 | `clients_unique_phone` | `UNIQUE(provider_id, phone_number)` on `clients` |
-| 017 | `manage_token` | HMAC `generate_manage_token` / `verify_manage_token` |
-| 018 | `notifications_type_web_booking` | Extend `notifications.type` CHECK to include `'web_booking'` |
+| #   | File                             | Purpose                                                                          |
+| --- | -------------------------------- | -------------------------------------------------------------------------------- |
+| 011 | `web_booking_columns`            | Extend `service_providers` with `public_slug`, `web_booking_enabled`, theme/meta |
+| 012 | `web_bookings_audit`             | Audit table for web bookings (idempotency key, UTM, IP hash)                     |
+| 013 | `web_rate_limits`                | Per-IP-per-slug rate limit + 15-min `pg_cron` purge                              |
+| 014 | `bookings_source_web`            | Extend `bookings.source` CHECK to include `'web'`                                |
+| 015 | `web_public_views`               | PUBLIC VIEWS for tenant lookup (instead of anon RLS)                             |
+| 016 | `clients_unique_phone`           | `UNIQUE(provider_id, phone_number)` on `clients`                                 |
+| 017 | `manage_token`                   | HMAC `generate_manage_token` / `verify_manage_token`                             |
+| 018 | `notifications_type_web_booking` | Extend `notifications.type` CHECK to include `'web_booking'`                     |
 
 Plus four `SECURITY DEFINER` RPCs (called via service-role client):
 

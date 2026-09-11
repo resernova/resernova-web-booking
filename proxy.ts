@@ -15,8 +15,8 @@ import { NextResponse, type NextRequest } from "next/server";
 // Coarse in-memory rate limiter — best-effort; production should use Vercel Edge
 // Config / Upstash Redis for cross-region accuracy.
 const WINDOW_MS = 60_000;
-const MAX_PROFILE = 60;       // GET /[slug]    — 60/min/IP
-const MAX_API = 10;           // POST /api/*    — 10/min/IP
+const MAX_PROFILE = 60; // GET /[slug]    — 60/min/IP
+const MAX_API = 10; // POST /api/*    — 10/min/IP
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
 
@@ -33,14 +33,21 @@ function rateLimit(ip: string, max: number): boolean {
 }
 
 export function proxy(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const pathname = req.nextUrl.pathname;
 
   // Rate limit only on /[slug] and /api/*
   if (pathname.startsWith("/api/") && !rateLimit(ip, MAX_API)) {
     return new NextResponse(
-      JSON.stringify({ success: false, error: { code: "RATE_LIMITED", message: "Too many requests" } }),
-      { status: 429, headers: { "Retry-After": "60", "Content-Type": "application/json" } },
+      JSON.stringify({
+        success: false,
+        error: { code: "RATE_LIMITED", message: "Too many requests" },
+      }),
+      {
+        status: 429,
+        headers: { "Retry-After": "60", "Content-Type": "application/json" },
+      },
     );
   }
 
@@ -52,9 +59,11 @@ export function proxy(req: NextRequest) {
 
   // Locale detection — read Accept-Language, set header for downstream
   const acceptLang = req.headers.get("accept-language") ?? "fr";
-  const locale = acceptLang.toLowerCase().includes("ar") ? "ar"
-               : acceptLang.toLowerCase().includes("en") ? "en"
-               : "fr";   // Morocco default
+  const locale = acceptLang.toLowerCase().includes("ar")
+    ? "ar"
+    : acceptLang.toLowerCase().includes("en")
+      ? "en"
+      : "fr"; // Morocco default
 
   const res = NextResponse.next();
   res.headers.set("x-resolved-locale", locale);

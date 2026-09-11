@@ -30,11 +30,13 @@ Deno.serve(async (req: Request) => {
   // Fetch web bookings needing a 24h reminder
   const { data: bookings, error } = await supabase
     .from("bookings")
-    .select(`
+    .select(
+      `
       id, client_name, client_phone, status, source, time_slot_start,
       service:services(name, duration_minutes),
       client:clients(id, whatsapp_optin:client_whatsapp_optins(opted_in))
-    `)
+    `,
+    )
     .eq("source", "web")
     .eq("status", "confirmed")
     .gte("time_slot_start", new Date(Date.now() + 23 * 3600_000).toISOString())
@@ -42,16 +44,19 @@ Deno.serve(async (req: Request) => {
 
   if (error) {
     console.error("[web-booking-reminder] query failed", error);
-    return new Response(JSON.stringify({ ok: false, error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ ok: false, error: error.message }), {
+      status: 500,
+    });
   }
 
-  const results: Array<{ bookingId: string; status: string; reason?: string }> = [];
+  const results: Array<{ bookingId: string; status: string; reason?: string }> =
+    [];
   const now = new Date();
 
   for (const b of bookings ?? []) {
     const bookingId = (b as any).id;
     const clientPhone = (b as any).client_phone;
-    const optedIn = ((b as any).client?.whatsapp_optin?.[0]?.opted_in) ?? false;
+    const optedIn = (b as any).client?.whatsapp_optin?.[0]?.opted_in ?? false;
 
     // Idempotency: check reminder_logs
     const { data: existing } = await supabase
@@ -62,7 +67,11 @@ Deno.serve(async (req: Request) => {
       .limit(1);
 
     if (existing && existing.length > 0) {
-      results.push({ bookingId, status: "skipped", reason: "already_reminded" });
+      results.push({
+        bookingId,
+        status: "skipped",
+        reason: "already_reminded",
+      });
       continue;
     }
 
@@ -88,7 +97,11 @@ Deno.serve(async (req: Request) => {
     // Send via Meta Graph API v22.0 (Phase 2 — gated)
     const whatsappEnabled = Deno.env.get("WHATSAPP_ENABLED") === "true";
     if (!whatsappEnabled) {
-      results.push({ bookingId, status: "skipped", reason: "whatsapp_disabled" });
+      results.push({
+        bookingId,
+        status: "skipped",
+        reason: "whatsapp_disabled",
+      });
       continue;
     }
 
@@ -104,12 +117,20 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, processed: results.length, results }), {
-    status: 200, headers: { "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({ ok: true, processed: results.length, results }),
+    {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 });
 
-async function logReminder(supabase: ReturnType<typeof createClient>, bookingId: string, status: string) {
+async function logReminder(
+  supabase: ReturnType<typeof createClient>,
+  bookingId: string,
+  status: string,
+) {
   await supabase.from("reminder_logs").insert({
     booking_id: bookingId,
     template_name: "web_booking_reminder_v1",

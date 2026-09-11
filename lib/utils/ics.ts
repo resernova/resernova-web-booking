@@ -8,7 +8,7 @@ export type IcsEvent = {
   summary: string;
   description?: string;
   location?: string;
-  startIso: string;             // ISO 8601 with timezone offset (e.g., "2026-08-15T10:00:00+01:00")
+  startIso: string; // ISO 8601 with timezone offset (e.g., "2026-08-15T10:00:00+01:00")
   endIso: string;
   organizerName: string;
   organizerEmail?: string;
@@ -82,8 +82,16 @@ export function buildIcs(event: IcsEvent): string {
     lines.push(foldLine(`LOCATION:${escapeIcs(event.location)}`));
   }
 
-  lines.push(foldLine(`ORGANIZER;CN=${escapeIcs(event.organizerName)}${event.organizerEmail ? `:mailto:${event.organizerEmail}` : ""}`));
-  lines.push(foldLine(`ATTENDEE;CN=${escapeIcs(event.attendeeName)};RSVP=TRUE${event.attendeeEmail ? `:mailto:${event.attendeeEmail}` : ""}`));
+  lines.push(
+    foldLine(
+      `ORGANIZER;CN=${escapeIcs(event.organizerName)}${event.organizerEmail ? `:mailto:${event.organizerEmail}` : ""}`,
+    ),
+  );
+  lines.push(
+    foldLine(
+      `ATTENDEE;CN=${escapeIcs(event.attendeeName)};RSVP=TRUE${event.attendeeEmail ? `:mailto:${event.attendeeEmail}` : ""}`,
+    ),
+  );
   lines.push("STATUS:CONFIRMED");
   lines.push("TRANSP:OPAQUE");
   lines.push("END:VEVENT");

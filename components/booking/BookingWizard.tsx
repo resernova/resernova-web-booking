@@ -5,7 +5,7 @@
  */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -55,25 +55,48 @@ const labels = {
     networkError: "Erreur réseau. Veuillez réessayer.",
   },
   en: {
-    step1: "Service", step2: "Date & time", step3: "Your details", step4: "Confirm",
-    next: "Continue", back: "Back", confirm: "Confirm booking", submitting: "Confirming...",
-    successToast: "Booking confirmed!", networkError: "Network error. Please try again.",
+    step1: "Service",
+    step2: "Date & time",
+    step3: "Your details",
+    step4: "Confirm",
+    next: "Continue",
+    back: "Back",
+    confirm: "Confirm booking",
+    submitting: "Confirming...",
+    successToast: "Booking confirmed!",
+    networkError: "Network error. Please try again.",
   },
   ar: {
-    step1: "الخدمة", step2: "التاريخ والوقت", step3: "بياناتك", step4: "التأكيد",
-    next: "متابعة", back: "رجوع", confirm: "تأكيد الحجز", submitting: "جاري التأكيد...",
-    successToast: "تم تأكيد الحجز!", networkError: "خطأ في الشبكة. حاول مرة أخرى.",
+    step1: "الخدمة",
+    step2: "التاريخ والوقت",
+    step3: "بياناتك",
+    step4: "التأكيد",
+    next: "متابعة",
+    back: "رجوع",
+    confirm: "تأكيد الحجز",
+    submitting: "جاري التأكيد...",
+    successToast: "تم تأكيد الحجز!",
+    networkError: "خطأ في الشبكة. حاول مرة أخرى.",
   },
 };
 
 export function BookingWizard({
-  slug, serviceId, serviceName, serviceDurationMinutes, servicePrice, staff, locale = "fr",
+  slug,
+  serviceId,
+  serviceName,
+  serviceDurationMinutes,
+  servicePrice,
+  staff,
+  locale = "fr",
 }: Props) {
   const router = useRouter();
   const t = labels[locale];
   const [step, setStep] = useState<Step>(1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState<string>("");
 
@@ -108,8 +131,6 @@ export function BookingWizard({
     },
   });
 
-  const watchedStart = useMemo(() => selectedSlot?.start ?? null, [selectedSlot]);
-
   async function onSubmit(values: CreateBookingPayload) {
     if (!selectedSlot) {
       toast.error("Veuillez choisir un créneau");
@@ -135,7 +156,9 @@ export function BookingWizard({
       if (result.success) {
         toast.success(t.successToast);
         sessionStorage.removeItem("web-booking-idem");
-        router.push(`/${slug}/book/confirm/${result.data.bookingId}#t=${result.data.manageToken}`);
+        router.push(
+          `/${slug}/book/confirm/${result.data.bookingId}#t=${result.data.manageToken}`,
+        );
       } else {
         const code = result.error.code;
         if (code === "SLOT_TAKEN") {
@@ -161,7 +184,10 @@ export function BookingWizard({
   return (
     <div className="mx-auto max-w-2xl px-4 pb-16 sm:px-6">
       {/* Stepper */}
-      <ol className="mb-8 flex items-center justify-between gap-2" aria-label="Booking steps">
+      <ol
+        className="mb-8 flex items-center justify-between gap-2"
+        aria-label="Booking steps"
+      >
         {([1, 2, 3, 4] as const).map((s) => {
           const isCurrent = step === s;
           const isComplete = step > s;
@@ -170,17 +196,23 @@ export function BookingWizard({
               <span
                 aria-current={isCurrent ? "step" : undefined}
                 className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold transition-colors ${
-                  isComplete ? "bg-[var(--color-accent-500)] text-white"
-                  : isCurrent ? "bg-[var(--color-primary-500)] text-white"
-                  : "bg-zinc-100 text-zinc-400"
+                  isComplete
+                    ? "bg-[var(--color-accent-500)] text-white"
+                    : isCurrent
+                      ? "bg-[var(--color-primary-500)] text-white"
+                      : "bg-zinc-100 text-zinc-400"
                 }`}
               >
                 {isComplete ? "✓" : s}
               </span>
-              <span className={`hidden text-xs font-medium sm:inline ${isCurrent ? "text-[var(--color-primary-500)]" : "text-[var(--color-text-muted)]"}`}>
+              <span
+                className={`hidden text-xs font-medium sm:inline ${isCurrent ? "text-[var(--color-primary-500)]" : "text-[var(--color-text-muted)]"}`}
+              >
                 {t[`step${s}` as keyof typeof t]}
               </span>
-              {s < 4 && <span aria-hidden className="h-px flex-1 bg-zinc-200" />}
+              {s < 4 && (
+                <span aria-hidden className="h-px flex-1 bg-zinc-200" />
+              )}
             </li>
           );
         })}
@@ -255,7 +287,12 @@ export function BookingWizard({
 /* ====================================================================== */
 
 function Step1ServiceSummary({
-  serviceName, servicePrice, serviceDurationMinutes, locale, onNext, nextLabel,
+  serviceName,
+  servicePrice,
+  serviceDurationMinutes,
+  locale,
+  onNext,
+  nextLabel,
 }: {
   serviceName: string;
   servicePrice: number;
@@ -273,8 +310,10 @@ function Step1ServiceSummary({
 
       <div className="mt-6 rounded-2xl bg-[var(--color-primary-500)]/5 p-5">
         <p className="text-sm text-[var(--color-text-muted)]">
-          {locale === "fr" && "Étape suivante : choisissez la date et l'heure de votre rendez-vous."}
-          {locale === "en" && "Next step: choose the date and time of your appointment."}
+          {locale === "fr" &&
+            "Étape suivante : choisissez la date et l'heure de votre rendez-vous."}
+          {locale === "en" &&
+            "Next step: choose the date and time of your appointment."}
           {locale === "ar" && "الخطوة التالية: اختر التاريخ والوقت لموعدك."}
         </p>
       </div>
@@ -286,8 +325,20 @@ function Step1ServiceSummary({
           className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           {nextLabel}
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-            <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M7 5l5 5-5 5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       </div>
@@ -351,8 +402,20 @@ function Step2DateTime(props: {
           onClick={props.onBack}
           className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 font-semibold text-[var(--color-text)] hover:bg-zinc-50"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-            <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M13 5l-5 5 5 5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {props.backLabel}
         </button>
@@ -363,8 +426,20 @@ function Step2DateTime(props: {
           className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
           {props.nextLabel}
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-            <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M7 5l5 5-5 5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       </div>
@@ -405,8 +480,20 @@ function Step3Details(props: {
           onClick={onBack}
           className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 font-semibold text-[var(--color-text)] hover:bg-zinc-50"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-            <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M13 5l-5 5 5 5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {backLabel}
         </button>
@@ -419,8 +506,20 @@ function Step3Details(props: {
           className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           {nextLabel}
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-            <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M7 5l5 5-5 5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       </div>
@@ -479,11 +578,14 @@ function Step4Confirm(props: {
 
 function formatMAD(n: number, locale: "fr" | "en" | "ar"): string {
   try {
-    return new Intl.NumberFormat(locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA", {
-      style: "currency",
-      currency: "MAD",
-      maximumFractionDigits: 0,
-    }).format(n);
+    return new Intl.NumberFormat(
+      locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA",
+      {
+        style: "currency",
+        currency: "MAD",
+        maximumFractionDigits: 0,
+      },
+    ).format(n);
   } catch {
     return `${n} DH`;
   }

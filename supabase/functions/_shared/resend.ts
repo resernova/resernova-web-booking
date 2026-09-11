@@ -18,7 +18,8 @@ export type SendEmailParams = {
 
 export async function sendEmail(params: SendEmailParams): Promise<string> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const from = Deno.env.get("RESEND_FROM_EMAIL") ?? "ReserNova <bookings@resernova.com>";
+  const from =
+    Deno.env.get("RESEND_FROM_EMAIL") ?? "ReserNova <bookings@resernova.com>";
   if (!apiKey) throw new Error("RESEND_API_KEY not configured");
 
   const body: Record<string, unknown> = {
@@ -32,9 +33,10 @@ export async function sendEmail(params: SendEmailParams): Promise<string> {
   if (params.attachments?.length) {
     body.attachments = params.attachments.map((a) => ({
       filename: a.filename,
-      content: typeof a.content === "string"
-        ? btoa(unescape(encodeURIComponent(a.content))) // base64-encode for JSON transport
-        : "",
+      content:
+        typeof a.content === "string"
+          ? btoa(unescape(encodeURIComponent(a.content))) // base64-encode for JSON transport
+          : "",
       content_type: a.contentType ?? "application/octet-stream",
     }));
   }
@@ -42,7 +44,7 @@ export async function sendEmail(params: SendEmailParams): Promise<string> {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
@@ -57,5 +59,8 @@ export async function sendEmail(params: SendEmailParams): Promise<string> {
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }

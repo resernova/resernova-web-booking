@@ -36,11 +36,16 @@ const labels = {
     requestMax: "Maximum 500 caractères",
   },
   en: {
-    fullName: "Full name", fullNamePlaceholder: "e.g. Fatima Zahra Bennani",
-    phone: "Phone", phonePlaceholder: "06XXXXXXXX or +212XXXXXXXXX",
-    email: "Email (optional)", emailPlaceholder: "you@example.com",
-    specialRequest: "Special request (optional)", specialRequestPlaceholder: "A preference, an allergy, a timing...",
-    preferredStaff: "Preferred staff (optional)", noPreference: "No preference",
+    fullName: "Full name",
+    fullNamePlaceholder: "e.g. Fatima Zahra Bennani",
+    phone: "Phone",
+    phonePlaceholder: "06XXXXXXXX or +212XXXXXXXXX",
+    email: "Email (optional)",
+    emailPlaceholder: "you@example.com",
+    specialRequest: "Special request (optional)",
+    specialRequestPlaceholder: "A preference, an allergy, a timing...",
+    preferredStaff: "Preferred staff (optional)",
+    noPreference: "No preference",
     whatsappOptIn: "Receive a WhatsApp reminder 24 h before",
     required: "This field is required",
     phoneInvalid: "Invalid Moroccan phone number",
@@ -49,11 +54,16 @@ const labels = {
     requestMax: "Maximum 500 characters",
   },
   ar: {
-    fullName: "الاسم الكامل", fullNamePlaceholder: "مثال: فاطمة الزهراء بناني",
-    phone: "الهاتف", phonePlaceholder: "06XXXXXXXX أو +212XXXXXXXXX",
-    email: "البريد الإلكتروني (اختياري)", emailPlaceholder: "you@example.com",
-    specialRequest: "طلب خاص (اختياري)", specialRequestPlaceholder: "تفضيل، حساسية، توقيت...",
-    preferredStaff: "الممارس المفضل (اختياري)", noPreference: "دون تفضيل",
+    fullName: "الاسم الكامل",
+    fullNamePlaceholder: "مثال: فاطمة الزهراء بناني",
+    phone: "الهاتف",
+    phonePlaceholder: "06XXXXXXXX أو +212XXXXXXXXX",
+    email: "البريد الإلكتروني (اختياري)",
+    emailPlaceholder: "you@example.com",
+    specialRequest: "طلب خاص (اختياري)",
+    specialRequestPlaceholder: "تفضيل، حساسية، توقيت...",
+    preferredStaff: "الممارس المفضل (اختياري)",
+    noPreference: "دون تفضيل",
     whatsappOptIn: "تذكير عبر واتساب قبل 24 ساعة",
     required: "هذا الحقل إلزامي",
     phoneInvalid: "رقم هاتف مغربي غير صالح",
@@ -65,7 +75,10 @@ const labels = {
 
 export function ClientDetailsForm({ form, staff, locale }: Props) {
   const t = labels[locale];
-  const { register, formState: { errors }, setValue, watch } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
 
   // Min-time-on-page gate: user must spend >3s on the wizard before allowing submit
   const [pageMounted] = useState(() => Date.now());
@@ -86,7 +99,10 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
       <Field
         label={t.fullName}
         required
-        error={errors.clientName?.message ?? (errors.clientName?.type === "too_small" ? t.nameMin : undefined)}
+        error={
+          errors.clientName?.message ??
+          (errors.clientName?.type === "too_small" ? t.nameMin : undefined)
+        }
       >
         <input
           {...register("clientName")}
@@ -102,7 +118,12 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
       <Field
         label={t.phone}
         required
-        error={errors.clientPhone?.message ?? (errors.clientPhone?.type === "invalid_string" ? t.phoneInvalid : undefined)}
+        error={
+          errors.clientPhone?.message ??
+          (errors.clientPhone?.type === "invalid_string"
+            ? t.phoneInvalid
+            : undefined)
+        }
       >
         <input
           {...register("clientPhone")}
@@ -118,7 +139,12 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
       {/* Email */}
       <Field
         label={t.email}
-        error={errors.clientEmail?.message ?? (errors.clientEmail?.type === "invalid_string" ? t.emailInvalid : undefined)}
+        error={
+          errors.clientEmail?.message ??
+          (errors.clientEmail?.type === "invalid_string"
+            ? t.emailInvalid
+            : undefined)
+        }
       >
         <input
           {...register("clientEmail")}
@@ -139,7 +165,9 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
         >
           <option value="">{t.noPreference}</option>
           {staff.map((s) => (
-            <option key={s.id} value={s.id}>{s.name}</option>
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
           ))}
         </select>
       </Field>
@@ -147,7 +175,10 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
       {/* Special request */}
       <Field
         label={t.specialRequest}
-        error={errors.specialRequest?.message ?? (errors.specialRequest?.type === "too_big" ? t.requestMax : undefined)}
+        error={
+          errors.specialRequest?.message ??
+          (errors.specialRequest?.type === "too_big" ? t.requestMax : undefined)
+        }
       >
         <textarea
           {...register("specialRequest")}
@@ -185,7 +216,8 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
 
       {!timeElapsed && (
         <p className="text-xs text-[var(--color-text-muted)]">
-          {locale === "fr" && "Veuillez patienter quelques secondes avant de soumettre..."}
+          {locale === "fr" &&
+            "Veuillez patienter quelques secondes avant de soumettre..."}
           {locale === "en" && "Please wait a few seconds before submitting..."}
           {locale === "ar" && "يرجى الانتظار بضع ثوانٍ قبل الإرسال..."}
         </p>
@@ -194,16 +226,32 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
   );
 }
 
-function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <label className="mb-1 block text-sm font-semibold text-[var(--color-text)]">
         {label}
-        {required && <span aria-hidden className="ml-1 text-[var(--color-error)]">*</span>}
+        {required && (
+          <span aria-hidden className="ml-1 text-[var(--color-error)]">
+            *
+          </span>
+        )}
       </label>
       {children}
       {error && (
-        <p role="alert" className="mt-1 text-xs text-[var(--color-error)]">{error}</p>
+        <p role="alert" className="mt-1 text-xs text-[var(--color-error)]">
+          {error}
+        </p>
       )}
     </div>
   );

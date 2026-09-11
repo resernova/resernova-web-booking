@@ -16,25 +16,47 @@ type Props = {
 };
 
 const labels = {
-  fr: { duration: (m: number) => `${m} min`, price: (n: number) => `${n} DH`, cta: "Choisir" },
-  en: { duration: (m: number) => `${m} min`, price: (n: number) => `${n} DH`, cta: "Choose" },
-  ar: { duration: (m: number) => `${m} دقيقة`, price: (n: number) => `${n} درهم`, cta: "اختيار" },
+  fr: {
+    duration: (m: number) => `${m} min`,
+    price: (n: number) => `${n} DH`,
+    cta: "Choisir",
+  },
+  en: {
+    duration: (m: number) => `${m} min`,
+    price: (n: number) => `${n} DH`,
+    cta: "Choose",
+  },
+  ar: {
+    duration: (m: number) => `${m} دقيقة`,
+    price: (n: number) => `${n} درهم`,
+    cta: "اختيار",
+  },
 };
 
 function formatMAD(n: number, locale: string): string {
   try {
-    return new Intl.NumberFormat(locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA", {
-      style: "currency",
-      currency: "MAD",
-      maximumFractionDigits: 0,
-    }).format(n);
+    return new Intl.NumberFormat(
+      locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA",
+      {
+        style: "currency",
+        currency: "MAD",
+        maximumFractionDigits: 0,
+      },
+    ).format(n);
   } catch {
     return `${n} DH`;
   }
 }
 
 export function ServiceCard({
-  slug, serviceId, name, description, durationMinutes, price, photoUrl, locale = "fr",
+  slug,
+  serviceId,
+  name,
+  description,
+  durationMinutes,
+  price,
+  photoUrl,
+  locale = "fr",
 }: Props) {
   const t = labels[locale];
 
@@ -53,13 +75,17 @@ export function ServiceCard({
       )}
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-lg font-semibold leading-tight">{name}</h3>
+          <h3 className="font-display text-lg font-semibold leading-tight">
+            {name}
+          </h3>
           <span className="shrink-0 rounded-full bg-[var(--color-primary-500)]/10 px-3 py-1 text-sm font-semibold text-[var(--color-primary-500)]">
             {formatMAD(price, locale)}
           </span>
         </div>
         {description && (
-          <p className="mt-2 line-clamp-2 text-sm text-[var(--color-text-muted)]">{description}</p>
+          <p className="mt-2 line-clamp-2 text-sm text-[var(--color-text-muted)]">
+            {description}
+          </p>
         )}
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xs font-medium text-[var(--color-text-muted)]">
@@ -70,8 +96,20 @@ export function ServiceCard({
             className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-500)] px-4 py-2 text-sm font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {t.cta}
-            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden>
-              <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden
+            >
+              <path
+                d="M7 5l5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </Link>
         </div>

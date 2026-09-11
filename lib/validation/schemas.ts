@@ -17,7 +17,9 @@ export const PublicSlug = z
 export const Uuid = z.string().uuid();
 
 export const IsoDateTime = z.string().datetime({ offset: true });
-export const YmdDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date YYYY-MM-DD");
+export const YmdDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date YYYY-MM-DD");
 
 /* -------------------------------- Booking ------------------------------- */
 

@@ -17,7 +17,10 @@ export default function Loading() {
         <div className="mt-4 h-4 w-72 animate-pulse rounded bg-zinc-100" />
         <div className="mt-8 space-y-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-2xl bg-zinc-100" />
+            <div
+              key={i}
+              className="h-12 animate-pulse rounded-2xl bg-zinc-100"
+            />
           ))}
         </div>
       </div>

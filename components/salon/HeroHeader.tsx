@@ -30,7 +30,9 @@ export function HeroHeader({ businessName, slug, heroImageUrl }: Props) {
             {businessName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
-            <p className="text-xs uppercase tracking-widest text-white/70">ReserNova</p>
+            <p className="text-xs uppercase tracking-widest text-white/70">
+              ReserNova
+            </p>
             <h1 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">
               {businessName}
             </h1>
@@ -43,8 +45,20 @@ export function HeroHeader({ businessName, slug, heroImageUrl }: Props) {
             className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-[var(--color-primary-500)] transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-button"
           >
             Voir les services
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-              <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden
+            >
+              <path
+                d="M7 5l5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </Link>
         </div>

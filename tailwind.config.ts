@@ -19,7 +19,12 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-poppins)", "var(--font-inter)", "system-ui", "sans-serif"],
+        display: [
+          "var(--font-poppins)",
+          "var(--font-inter)",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       borderRadius: {
         hero: "36px",
@@ -32,7 +37,8 @@ const config: Config = {
         modal: "0 24px 64px -16px rgba(28,107,109,0.35)",
       },
       backgroundImage: {
-        "brand-gradient": "linear-gradient(135deg, #1C6B6D 0%, #2A9D8F 50%, #3ABDA2 100%)",
+        "brand-gradient":
+          "linear-gradient(135deg, #1C6B6D 0%, #2A9D8F 50%, #3ABDA2 100%)",
         "accent-gradient": "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
       },
       animation: {

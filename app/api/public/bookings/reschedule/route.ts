@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { success: false, error: { code: "INVALID_INPUT", message: "Invalid JSON" } },
+      {
+        success: false,
+        error: { code: "INVALID_INPUT", message: "Invalid JSON" },
+      },
       { status: 400 },
     );
   }
@@ -47,12 +50,18 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     const code = mapPgErrorToApiError(error.message);
-    const status = code === "INVALID_TOKEN" ? 401
-                 : code === "BOOKING_NOT_FOUND" ? 404
-                 : code === "SLOT_TAKEN" ? 409
-                 : code === "SLOT_IN_PAST" ? 410
-                 : code === "BOOKING_NOT_RESCHEDULABLE" ? 409
-                 : 400;
+    const status =
+      code === "INVALID_TOKEN"
+        ? 401
+        : code === "BOOKING_NOT_FOUND"
+          ? 404
+          : code === "SLOT_TAKEN"
+            ? 409
+            : code === "SLOT_IN_PAST"
+              ? 410
+              : code === "BOOKING_NOT_RESCHEDULABLE"
+                ? 409
+                : 400;
     return NextResponse.json(
       { success: false, error: { code, message: error.message } },
       { status },
@@ -65,12 +74,16 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 200 });
 }
 
-function mapPgErrorToApiError(message: string): import("@/lib/validation/schemas").ApiErrorCode {
+function mapPgErrorToApiError(
+  message: string,
+): import("@/lib/validation/schemas").ApiErrorCode {
   if (message.includes("INVALID_TOKEN")) return "INVALID_TOKEN";
   if (message.includes("BOOKING_NOT_FOUND")) return "BOOKING_NOT_FOUND";
   if (message.includes("SLOT_TAKEN")) return "SLOT_TAKEN";
   if (message.includes("SLOT_IN_PAST")) return "SLOT_IN_PAST";
-  if (message.includes("SLOT_DURATION_MISMATCH")) return "SLOT_DURATION_MISMATCH";
-  if (message.includes("BOOKING_NOT_RESCHEDULABLE")) return "BOOKING_NOT_RESCHEDULABLE";
+  if (message.includes("SLOT_DURATION_MISMATCH"))
+    return "SLOT_DURATION_MISMATCH";
+  if (message.includes("BOOKING_NOT_RESCHEDULABLE"))
+    return "BOOKING_NOT_RESCHEDULABLE";
   return "INTERNAL";
 }

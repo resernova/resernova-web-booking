@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { success: false, error: { code: "INVALID_INPUT", message: "Invalid JSON" } },
+      {
+        success: false,
+        error: { code: "INVALID_INPUT", message: "Invalid JSON" },
+      },
       { status: 400 },
     );
   }
@@ -50,9 +53,12 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     const code = mapPgErrorToApiError(error.message);
-    const status = code === "PROVIDER_DISABLED" ? 403
-                 : code === "PROVIDER_NOT_FOUND" || code === "SERVICE_NOT_FOUND" ? 404
-                 : 400;
+    const status =
+      code === "PROVIDER_DISABLED"
+        ? 403
+        : code === "PROVIDER_NOT_FOUND" || code === "SERVICE_NOT_FOUND"
+          ? 404
+          : 400;
     return NextResponse.json(
       { success: false, error: { code, message: error.message } },
       { status, headers: cacheHeaders(0) },
@@ -66,7 +72,9 @@ export async function POST(req: NextRequest) {
 }
 
 function cacheHeaders(sMaxAge: number) {
-  return { "Cache-Control": `public, max-age=0, s-maxage=${sMaxAge}, stale-while-revalidate=300` };
+  return {
+    "Cache-Control": `public, max-age=0, s-maxage=${sMaxAge}, stale-while-revalidate=300`,
+  };
 }
 
 function unwrapV2Envelope(data: unknown) {
@@ -74,7 +82,9 @@ function unwrapV2Envelope(data: unknown) {
   return { success: true, data };
 }
 
-function mapPgErrorToApiError(message: string): import("@/lib/validation/schemas").ApiErrorCode {
+function mapPgErrorToApiError(
+  message: string,
+): import("@/lib/validation/schemas").ApiErrorCode {
   if (message.includes("PROVIDER_NOT_FOUND")) return "PROVIDER_NOT_FOUND";
   if (message.includes("PROVIDER_DISABLED")) return "PROVIDER_DISABLED";
   if (message.includes("SERVICE_NOT_FOUND")) return "SERVICE_NOT_FOUND";
