@@ -7,6 +7,8 @@
  */
 "use server";
 
+import { createHash } from "node:crypto";
+import { headers } from "next/headers";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import {
   CreateBookingRequest,
@@ -42,11 +44,10 @@ export async function createBooking(
 
   // 3. Hash IP (the action runtime IP via X-Forwarded-For)
   //    For Server Actions in production on Vercel, `headers()` exposes them.
-  const { headers } = await import("next/headers");
   const h = await headers();
   const xff = h.get("x-forwarded-for") ?? "";
   const ip = xff.split(",")[0]?.trim() || "unknown";
-  const ipHash = await sha256(ip);
+  const ipHash = createHash("sha256").update(ip).digest("hex");
 
   // 4. Call RPC
   const supabase = createServiceRoleClient();
@@ -79,11 +80,6 @@ export async function createBooking(
     success: false,
     error: { code: "INTERNAL", message: "Unexpected response from RPC" },
   };
-}
-
-async function sha256(input: string): Promise<string> {
-  const { createHash } = await import("node:crypto");
-  return createHash("sha256").update(input).digest("hex");
 }
 
 function mapPgErrorToApiError(message: string): import("@/lib/validation/schemas").ApiErrorCode {

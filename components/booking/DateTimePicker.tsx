@@ -92,7 +92,7 @@ export function DateTimePicker({ value, onChange, locale }: Props) {
               disabled={disabled}
               onClick={() => onChange(d.toISODate()!)}
               className={cls}
-              aria-pressed={isSelected}
+              aria-pressed={isSelected ? "true" : "false"}
               aria-label={d.toFormat("cccc d LLLL yyyy", { locale })}
             >
               {d.day}

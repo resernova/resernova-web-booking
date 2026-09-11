@@ -1,5 +1,7 @@
 /**
- * Next.js middleware — runs at the edge on every request.
+ * Next.js 16 Proxy — runs at the edge on every request.
+ * (Renamed from `middleware.ts` → `proxy.ts` per Next 16; `middleware` is the deprecated alias.)
+ *
  * Responsibilities:
  *   1. Rate limit per IP (coarse — Vercel Edge protection)
  *   2. Locale detection (Accept-Language → 'fr' fallback)
@@ -30,7 +32,7 @@ function rateLimit(ip: string, max: number): boolean {
   return true;
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const pathname = req.nextUrl.pathname;
 
@@ -58,6 +60,9 @@ export function middleware(req: NextRequest) {
   res.headers.set("x-resolved-locale", locale);
   return res;
 }
+
+// Deprecated alias — Vercel may still warn if removed entirely. Keep for one release.
+export const middleware = proxy;
 
 export const config = {
   matcher: [
