@@ -1,0 +1,33 @@
+# Lockfiles — preserve exact formatting
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Generated
+.next-env.d.ts
+next-env.d.ts
+AGENTS.md
+CLAUDE.md
+
+# Graphify outputs
+graphify-out/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Test artifacts
+coverage/
+playwright-report/
+lighthouse-ci/
+
+# Misc
+*.md
+!components/**/*.md
+!lib/**/*.md
