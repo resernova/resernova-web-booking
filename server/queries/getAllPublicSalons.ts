@@ -10,7 +10,7 @@
  */
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { createServerAnonClient } from "@/lib/supabase/server";
+import { createPublicAnonClient } from "@/lib/supabase/server";
 
 export type PublicSalonCard = {
   slug: string;
@@ -57,7 +57,7 @@ function toPublicSalonCard(row: SalonRow): PublicSalonCard | null {
 
 export const getAllPublicSalons = unstable_cache(
   async (): Promise<PublicSalonCard[]> => {
-    const supabase = await createServerAnonClient();
+    const supabase = createPublicAnonClient();
     const { data, error } = await supabase
       .from("service_providers_public")
       .select(

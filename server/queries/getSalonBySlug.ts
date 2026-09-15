@@ -3,7 +3,7 @@
  * Reads from the PUBLIC VIEW (migration 015) — anon-friendly, no service-role needed.
  */
 import "server-only";
-import { createServerAnonClient } from "@/lib/supabase/server";
+import { createPublicAnonClient } from "@/lib/supabase/server";
 import { unstable_cache } from "next/cache";
 
 export type SalonProfile = {
@@ -24,7 +24,7 @@ export type SalonProfile = {
 
 export const getSalonBySlug = unstable_cache(
   async (slug: string): Promise<SalonProfile | null> => {
-    const supabase = await createServerAnonClient();
+    const supabase = createPublicAnonClient();
     const { data, error } = await supabase
       .from("service_providers_public")
       .select(
@@ -59,7 +59,7 @@ export const getSalonBySlug = unstable_cache(
 );
 
 export async function getSalonLocation(slug: string) {
-  const supabase = await createServerAnonClient();
+  const supabase = createPublicAnonClient();
   const { data: provider } = await supabase
     .from("service_providers_public")
     .select("id")

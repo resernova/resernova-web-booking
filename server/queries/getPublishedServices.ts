@@ -4,7 +4,7 @@
  * SELECT of status='published' rows).
  */
 import "server-only";
-import { createServerAnonClient } from "@/lib/supabase/server";
+import { createPublicAnonClient } from "@/lib/supabase/server";
 import { unstable_cache } from "next/cache";
 
 export type PublishedService = {
@@ -22,7 +22,7 @@ export type PublishedService = {
 
 export const getPublishedServices = unstable_cache(
   async (providerId: string): Promise<PublishedService[]> => {
-    const supabase = await createServerAnonClient();
+    const supabase = createPublicAnonClient();
     const { data, error } = await supabase
       .from("services")
       .select(
@@ -58,7 +58,7 @@ export const getPublishedServices = unstable_cache(
 );
 
 export async function getServiceById(serviceId: string) {
-  const supabase = await createServerAnonClient();
+  const supabase = createPublicAnonClient();
   const { data, error } = await supabase
     .from("services")
     .select(
@@ -86,7 +86,7 @@ export async function getServiceById(serviceId: string) {
 }
 
 export async function getServiceCategories() {
-  const supabase = await createServerAnonClient();
+  const supabase = createPublicAnonClient();
   const { data, error } = await supabase
     .from("service_categories")
     .select("category_id, name")
