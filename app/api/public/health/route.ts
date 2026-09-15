@@ -1,11 +1,11 @@
 /**
  * GET /api/public/health — liveness probe.
  * Cheap endpoint for Vercel health checks + uptime monitoring.
- * Edge runtime for low latency.
+ * Node.js runtime (Next 16 deprecated the Edge runtime).
  */
 import { NextResponse } from "next/server";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
