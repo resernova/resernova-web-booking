@@ -54,6 +54,10 @@ Thumbs.db
 # Graphify output (artifacts stay local)
 graphify-out/
 
+# Next 16 auto-generated AI agent docs (regenerated on every dev start)
+AGENTS.md
+CLAUDE.md
+
 # Secrets — never commit
 *.pem
 *.key
