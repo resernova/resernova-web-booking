@@ -14,7 +14,7 @@ BEGIN;
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.web_bookings (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   booking_id      uuid NOT NULL REFERENCES public.bookings(id) ON DELETE CASCADE,
   slug            text NOT NULL,
   ip_hash         text,
