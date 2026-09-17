@@ -1,5 +1,5 @@
 /**
- * Time utilities — Africa/Casablanca timezone, Ramadan silent hours.
+ * Time utilities — per-location timezone, Ramadan silent hours, availability parsing.
  * Mirrors Flutter timezone + silence_hour logic.
  */
 import { DateTime } from "luxon";
@@ -41,31 +41,37 @@ export function nowCasablanca(): DateTime {
   return DateTime.now().setZone(CASABLANCA_TZ);
 }
 
+export function nowIn(timeZone: string = CASABLANCA_TZ): DateTime {
+  return DateTime.now().setZone(timeZone);
+}
+
 /* ---------------------------------------------------------------------------
- * services.availability parser
+ * provider_locations.opening_hours parser (canonical shape)
  * ---------------------------------------------------------------------------
- * Shape 1 (object — day-of-week key):
+ * Per the two-layer availability model (docs/14-AVAILABILITY-TWO-LAYER.md):
+ *
  *   {
- *     "monday":    { "open": "09:00", "close": "19:00" },
- *     "tuesday":   { "open": "09:00", "close": "19:00" },
- *     "wednesday": null,                            // closed
- *     "thursday":  { "open": "09:00", "close": "19:00" },
- *     "friday":    { "open": "14:00", "close": "22:00" },
- *     "saturday":  { "open": "10:00", "close": "20:00" },
- *     "sunday":    null
+ *     "monday":    { "isOpen": true,  "slots": [{ "open": "09:00", "close": "17:00" }] },
+ *     "tuesday":   { "isOpen": true,  "slots": [{ "open": "09:00", "close": "17:00" }] },
+ *     "wednesday": { "isOpen": true,  "slots": [{ "open": "09:00", "close": "17:00" }] },
+ *     "thursday":  { "isOpen": true,  "slots": [{ "open": "09:00", "close": "17:00" }] },
+ *     "friday":    { "isOpen": true,  "slots": [{ "open": "14:00", "close": "22:00" }] },
+ *     "saturday":  { "isOpen": false, "slots": [] },
+ *     "sunday":    { "isOpen": false, "slots": [] }
  *   }
  *
- * Shape 2 (array of day objects):
- *   [
- *     { "day": "monday", "open": "09:00", "close": "19:00" },
- *     ...
- *   ]
+ * Multiple slots per day are supported (e.g., Ramadan businesses with
+ * lunch-break splits). `isOpen === false` or empty `slots` → closed.
  *
- * Both shapes accepted. Missing or unparseable → treated as closed all week.
+ * For back-compat with legacy data (flat {open,close} per day, or an array of
+ * day objects), `normalizeAvailability` detects the shape and converts to the
+ * canonical form. Both legacy shapes still parse; both return isOpen=true with a
+ * single slot.
  */
 
-export type DayWindow = { open: string; close: string };
-export type WeeklyAvailability = Partial<
+export type Slot = { open: string; close: string };
+export type DayHours = { isOpen: boolean; slots: Slot[] };
+export type LocationAvailability = Partial<
   Record<
     | "monday"
     | "tuesday"
@@ -74,9 +80,13 @@ export type WeeklyAvailability = Partial<
     | "friday"
     | "saturday"
     | "sunday",
-    DayWindow | null
+    DayHours
   >
 >;
+
+/** @deprecated legacy flat shape. Kept as a type alias only; normalizeAvailability normalises to LocationAvailability. */
+export type DayWindow = Slot;
+export type WeeklyAvailability = LocationAvailability;
 
 const DAY_KEYS = [
   "monday",
@@ -89,7 +99,22 @@ const DAY_KEYS = [
 ] as const;
 type DayKey = (typeof DAY_KEYS)[number];
 
-export function normalizeAvailability(raw: unknown): WeeklyAvailability {
+function isLegacyDayObject(v: unknown): v is Slot {
+  if (!v || typeof v !== "object") return false;
+  const o = v as Record<string, unknown>;
+  // Canonical: { isOpen, slots[] } — legacy: { open, close }
+  if ("isOpen" in o || "slots" in o) return false;
+  return typeof o.open === "string" && typeof o.close === "string";
+}
+
+function isCanonicalDayObject(v: unknown): v is DayHours {
+  if (!v || typeof v !== "object") return false;
+  const o = v as Record<string, unknown>;
+  if (!("slots" in o)) return false;
+  return Array.isArray(o.slots);
+}
+
+export function normalizeAvailability(raw: unknown): LocationAvailability {
   if (!raw) return {};
 
   let parsed: unknown;
@@ -99,36 +124,34 @@ export function normalizeAvailability(raw: unknown): WeeklyAvailability {
     return {};
   }
 
+  // Array form: [{ day, open, close }, ...] OR [{ day, isOpen, slots }, ...]
   if (Array.isArray(parsed)) {
-    const out: WeeklyAvailability = {};
+    const out: LocationAvailability = {};
     for (const entry of parsed) {
       if (!entry || typeof entry !== "object") continue;
       const obj = entry as Record<string, unknown>;
       const day = (obj.day ?? obj.weekday ?? "").toString().toLowerCase();
       if (!DAY_KEYS.includes(day as DayKey)) continue;
-      const open = obj.open?.toString();
-      const close = obj.close?.toString();
-      out[day as DayKey] = open && close ? { open, close } : null;
+      out[day as DayKey] = parseDayEntry(obj);
     }
     return out;
   }
 
+  // Object form
   if (typeof parsed === "object") {
-    const out: WeeklyAvailability = {};
+    const out: LocationAvailability = {};
     for (const key of DAY_KEYS) {
       const v = (parsed as Record<string, unknown>)[key];
       if (v == null) {
-        out[key] = null;
+        // null = explicitly closed
+        out[key as DayKey] = { isOpen: false, slots: [] };
         continue;
       }
-      if (typeof v === "object") {
-        const obj = v as Record<string, unknown>;
-        const open = obj.open?.toString();
-        const close = obj.close?.toString();
-        out[key] = open && close ? { open, close } : null;
-      } else {
-        out[key] = null;
+      if (!v || typeof v !== "object") {
+        out[key as DayKey] = { isOpen: false, slots: [] };
+        continue;
       }
+      out[key as DayKey] = parseDayEntry(v as Record<string, unknown>);
     }
     return out;
   }
@@ -136,57 +159,90 @@ export function normalizeAvailability(raw: unknown): WeeklyAvailability {
   return {};
 }
 
-/** "Open today until 19:00" badge logic. */
+function parseDayEntry(entry: Record<string, unknown>): DayHours {
+  // Canonical: { isOpen, slots[] }
+  if (isCanonicalDayObject(entry)) {
+    return entry;
+  }
+  // Legacy: { open, close }
+  if (isLegacyDayObject(entry)) {
+    return { isOpen: true, slots: [entry] };
+  }
+  // Legacy: { isOpen: false } explicitly
+  if (entry.isOpen === false) {
+    return { isOpen: false, slots: [] };
+  }
+  return { isOpen: false, slots: [] };
+}
+
+/** "Open today until 19:00" / "Fermé aujourd'hui" / "Ouvre à 14:00" badge logic.
+ *
+ * Handles:
+ *  - isOpen === false or empty slots → closed
+ *  - Single slot → next-upcoming / currently-open semantics as before
+ *  - Multi-slot days → if between slots (e.g., lunch break), show "Fermé actuellement — ouvre à HH:MM"
+ *
+ * @param raw         the canonical `opening_hours` jsonb
+ * @param timeZone    the location's IANA timezone (default 'Africa/Casablanca')
+ * @param refDate     override for testing (defaults to "now in timeZone")
+ */
 export type OpenToday = {
   isOpen: boolean;
-  opensAt?: string;
-  closesAt?: string;
-  closedReason?: string;
+  opensAt?: string; // next slot's open time, if not currently open
+  closesAt?: string; // current slot's close time, if currently open
+  closedReason?:
+    | "closed_today"
+    | "closed_for_day"
+    | "not_yet_open" // before today's first slot
+    | "between_slots"; // currently in a multi-slot gap
 };
 
 export function openToday(
   raw: unknown,
-  refDate: DateTime = nowCasablanca(),
+  timeZone: string = CASABLANCA_TZ,
+  refDate?: DateTime,
 ): OpenToday {
   const hours = normalizeAvailability(raw);
-  const dayKey = refDate.toFormat("EEEE").toLowerCase() as DayKey;
-  const window = hours[dayKey];
+  const now = refDate ?? nowIn(timeZone);
+  const dayKey = now.toFormat("EEEE").toLowerCase() as DayKey;
+  const day = hours[dayKey];
 
-  if (!window) {
+  if (!day || !day.isOpen || day.slots.length === 0) {
     return { isOpen: false, closedReason: "closed_today" };
   }
 
-  const open = parseHHMM(window.open);
-  const close = parseHHMM(window.close);
-  if (!open || !close) {
-    return { isOpen: false, closedReason: "closed_today" };
+  const nowHHMM = now.hour * 60 + now.minute;
+
+  // Find the next or current slot
+  // Sort by open time (defensive — slots may not be pre-ordered)
+  const sorted = [...day.slots].sort((a, b) => hhmm(a.open) - hhmm(b.open));
+
+  for (const slot of sorted) {
+    const open = hhmm(slot.open);
+    const close = hhmm(slot.close);
+    if (nowHHMM < open) {
+      // Before this slot — return its open time
+      return {
+        isOpen: false,
+        opensAt: slot.open,
+        closedReason: "not_yet_open",
+      };
+    }
+    if (nowHHMM < close) {
+      // Inside this slot
+      return { isOpen: true, closesAt: slot.close };
+    }
+    // else: this slot already ended — keep checking the next one
   }
 
-  const refHHMM = refDate.hour * 60 + refDate.minute;
-  const openHHMM = open.hour * 60 + open.minute;
-  const closeHHMM = close.hour * 60 + close.minute;
-
-  if (refHHMM < openHHMM) {
-    return {
-      isOpen: false,
-      opensAt: window.open,
-      closedReason: "not_yet_open",
-    };
-  }
-  if (refHHMM >= closeHHMM) {
-    return { isOpen: false, closedReason: "closed_for_day" };
-  }
-
-  return { isOpen: true, closesAt: window.close };
+  // Past the last slot of the day
+  return { isOpen: false, closedReason: "closed_for_day" };
 }
 
-function parseHHMM(s: string): { hour: number; minute: number } | null {
+function hhmm(s: string): number {
   const m = /^(\d{1,2}):(\d{2})$/.exec(s);
-  if (!m) return null;
-  const hour = Number(m[1]);
-  const minute = Number(m[2]);
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
-  return { hour, minute };
+  if (!m) return Number.NaN;
+  return Number(m[1]) * 60 + Number(m[2]);
 }
 
 export function formatSlot(dateIso: string, locale: string = "fr-MA"): string {

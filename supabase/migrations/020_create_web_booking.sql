@@ -108,14 +108,17 @@ BEGIN
   v_slot_end   := v_slot_end_tz   AT TIME ZONE 'Africa/Casablanca';
 
   -- ============================================================
-  -- 5. Anti-overlap check — same provider, same window, not cancelled/rejected/pending
+  -- 5. Anti-overlap check — same provider, same window, not cancelled/rejected.
+  --    `pending_staff_approval` IS counted as a conflict (matches the trigger
+  --    `bookings_check_no_overlap` on prod). The DB trigger is the source of
+  --    truth; this app-layer check is a cheap early-exit mirror.
   -- ============================================================
   IF EXISTS (
     SELECT 1
     FROM public.bookings b
     JOIN public.services s ON s.id = b.service_id
     WHERE s.provider_id = v_provider_id
-      AND b.status NOT IN ('canceled_by_customer', 'rejected_by_provider', 'pending_staff_approval')
+      AND b.status NOT IN ('canceled_by_customer', 'rejected_by_provider')
       AND b.time_slot_start < v_slot_end
       AND b.time_slot_end   > v_slot_start
   ) THEN

@@ -1,11 +1,13 @@
 /**
  * OpenHoursBadge — "Open today until 19:00" / "Closed today" / "Opens at 10:00".
- * Server component; takes parsed availability JSON.
+ * Server component; takes the canonical `opening_hours` jsonb + location timezone.
  */
 import { openToday } from "@/lib/utils/time";
 
 type Props = {
-  availability: unknown;
+  openingHours: unknown;
+  /** IANA timezone, e.g. 'Africa/Casablanca'. Defaults to Casablanca. */
+  timeZone?: string;
   /** Locale for "today" label */
   locale?: string;
 };
@@ -43,8 +45,12 @@ const labels = {
   },
 };
 
-export function OpenHoursBadge({ availability, locale = "fr" }: Props) {
-  const status = openToday(availability);
+export function OpenHoursBadge({
+  openingHours,
+  timeZone,
+  locale = "fr",
+}: Props) {
+  const status = openToday(openingHours, timeZone);
   const t = labels[locale as keyof typeof labels] ?? labels.fr;
 
   if (status.isOpen) {

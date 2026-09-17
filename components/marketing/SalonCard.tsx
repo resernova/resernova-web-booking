@@ -17,7 +17,7 @@ const labels = {
 };
 
 export function SalonCard({ salon }: Props) {
-  const today = openToday(salon.webMeta?.availability ?? null);
+  const today = openToday(salon.openingHours ?? null, salon.timeZone);
   const showOpenBadge = today.isOpen || today.opensAt !== undefined;
 
   // Generate a stable-ish gradient seed from slug for visual differentiation

@@ -11,10 +11,7 @@ import Link from "next/link";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { buildIcs } from "@/lib/utils/ics";
 import { CASABLANCA_TZ } from "@/lib/utils/time";
-import {
-  getSalonBySlug,
-  getSalonLocation,
-} from "@/server/queries/getSalonBySlug";
+import { getSalonBySlug } from "@/server/queries/getSalonBySlug";
 import type { Metadata } from "next";
 
 type RouteParams = { slug: string; bookingRef: string };
@@ -64,7 +61,6 @@ export default async function ConfirmPage({
     .maybeSingle();
   if (!service || service.provider_id !== salon.id) notFound();
 
-  const location = await getSalonLocation(slug);
   const start = DateTime.fromJSDate(new Date(booking.time_slot_start), {
     zone: CASABLANCA_TZ,
   });
@@ -77,7 +73,7 @@ export default async function ConfirmPage({
     uid: booking.id,
     summary: `${service.name} — ${salon.businessName}`,
     description: `Votre rendez-vous chez ${salon.businessName}. Référence: ${booking.id.slice(0, 8).toUpperCase()}`,
-    location: location?.address ?? salon.businessName,
+    location: salon.address ?? salon.businessName,
     startIso: start.toUTC().toISO()!,
     endIso: end.toUTC().toISO()!,
     organizerName: salon.businessName,
@@ -87,8 +83,8 @@ export default async function ConfirmPage({
   const icsDataUrl =
     "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
 
-  const whatsappDeepLink = location?.whatsapp_display_phone
-    ? `https://wa.me/${location.whatsapp_display_phone.replace(/[^\d+]/g, "").replace(/^\+/, "")}?text=${encodeURIComponent(
+  const whatsappDeepLink = salon.whatsappDisplayPhone
+    ? `https://wa.me/${salon.whatsappDisplayPhone.replace(/[^\d+]/g, "").replace(/^\+/, "")}?text=${encodeURIComponent(
         `Bonjour, je viens de réserver ${service.name} chez ${salon.businessName} le ${start.toFormat("dd LLL yyyy 'à' HH'h'mm", { locale: "fr" })}. Référence: ${booking.id.slice(0, 8).toUpperCase()}.`,
       )}`
     : null;

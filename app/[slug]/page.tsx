@@ -14,10 +14,7 @@ import { HeroHeader } from "@/components/salon/HeroHeader";
 import { OpenHoursBadge } from "@/components/salon/OpenHoursBadge";
 import { WhatsAppDeepLinkButton } from "@/components/salon/WhatsAppDeepLinkButton";
 import { ServiceCard } from "@/components/salon/ServiceCard";
-import {
-  getSalonBySlug,
-  getSalonLocation,
-} from "@/server/queries/getSalonBySlug";
+import { getSalonBySlug } from "@/server/queries/getSalonBySlug";
 import { getPublishedServices } from "@/server/queries/getPublishedServices";
 import Link from "next/link";
 
@@ -59,10 +56,7 @@ export default async function SalonProfilePage({
   const salon = await getSalonBySlug(slug);
   if (!salon) notFound();
 
-  const [location, services] = await Promise.all([
-    getSalonLocation(slug),
-    getPublishedServices(salon.id),
-  ]);
+  const services = await getPublishedServices(salon.id);
 
   const preview = services.slice(0, 3);
 
@@ -77,10 +71,14 @@ export default async function SalonProfilePage({
       <div className="mx-auto -mt-6 max-w-5xl px-4 sm:px-6">
         {/* Action row: Open badge + WhatsApp CTA */}
         <div className="glass flex flex-wrap items-center justify-between gap-4 rounded-3xl px-6 py-5">
-          <OpenHoursBadge availability={null} locale="fr" />
+          <OpenHoursBadge
+            openingHours={salon.openingHours}
+            timeZone={salon.timeZone}
+            locale="fr"
+          />
           <div className="flex items-center gap-3">
             <WhatsAppDeepLinkButton
-              phone={location?.whatsapp_display_phone ?? null}
+              phone={salon.whatsappDisplayPhone}
               businessName={salon.businessName}
             />
           </div>
@@ -140,11 +138,11 @@ export default async function SalonProfilePage({
         </section>
 
         {/* Address */}
-        {location?.address && (
+        {salon.address && (
           <section className="mt-10 mb-12 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-card">
             <h2 className="font-display text-lg font-semibold">Adresse</h2>
             <p className="mt-2 text-[var(--color-text-muted)]">
-              {location.address}
+              {salon.address}
             </p>
           </section>
         )}

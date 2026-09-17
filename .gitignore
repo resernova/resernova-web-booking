@@ -18,7 +18,7 @@ next-env.d.ts
 .env.production.local
 .env.development.local
 .env.test.local
-
+.env.*
 # Vercel
 .vercel/
 
