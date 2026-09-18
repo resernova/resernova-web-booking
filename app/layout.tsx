@@ -6,6 +6,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
+import "./focus.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,7 +59,7 @@ export default function RootLayout({
       dir="ltr"
       className={`${inter.variable} ${poppins.variable}`}
     >
-      <body className="min-h-dvh bg-surface-muted text-text antialiased">
+      <body className="min-h-dvh bg-canvas text-ink antialiased">
         {children}
         <Toaster position="top-right" richColors closeButton />
       </body>

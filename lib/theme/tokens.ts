@@ -1,108 +1,94 @@
 /**
- * Brand tokens — mirrors Flutter modern_design_system.dart
- * Three-layer architecture:
- *   1. Primitive tokens (raw values)
- *   2. Semantic tokens (purpose-named)
- *   3. Component tokens (component-scoped)
+ * TS mirror of the CSS variables declared in app/globals.css.
+ * Used for runtime tenant theming (resolveTheme override) and for
+ * type-safe access from server/client components. NOT the source of
+ * truth — app/globals.css @theme is canonical.
  *
- * Each salon's web_theme jsonb can override the semantic layer per-tenant.
+ * Design language: Linear-style editorial restraint + Maghreb accent.
+ * See /docs/superpowers/specs/2026-09-18-resernova-web-design.md.
  */
 
 export const brand = {
-  // Primary — deep teal (Moroccan-inspired)
-  primary: "#1C6B6D",
-  primaryLight: "#2A9D8F",
-  primaryLightest: "#3ABDA2",
-  primaryDark: "#124548",
-
-  // Accent — WhatsApp green (chat surfaces only)
-  accent: "#25D366",
-  accentDark: "#128C7E",
-
-  // Surfaces
-  surface: "#FFFFFF",
-  surfaceMuted: "#F4FAFA",
-  surfaceElevated: "#FFFFFF",
-
-  // Text
-  text: "#1A1A2E",
-  textMuted: "#5A6573",
-  textInverse: "#FFFFFF",
-
-  // States
-  error: "#E53935",
-  warning: "#FF9F43",
-  success: "#25D366",
-  info: "#1C6B6D",
-
-  // Borders
-  border: "#E0E5E8",
-  borderStrong: "#B0B8BC",
+  canvas: "#FFFFFF",
+  surface: "#FAFAFA",
+  card: "#FFFFFF",
+  ink: "#08090A",
+  inkMuted: "#6B7280",
+  inkSoft: "#9CA3AF",
+  inkInverse: "#FFFFFF",
+  border: "rgba(10,10,10,0.08)",
+  borderStrong: "rgba(10,10,10,0.16)",
+  accent: "#0F766E",
+  accentDim: "#0B5F58",
+  accentSoft: "rgba(15,118,110,0.08)",
+  success: "#1F8A4F",
+  error: "#B91C1C",
+  warning: "#B45309",
+  blushSoft: "#FAEBE7",
+  goldWarm: "#D4B860",
 } as const;
 
 export const radius = {
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
-  "2xl": 30,
-  hero: 36,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  image: 12,
   full: 9999,
 } as const;
 
-export const shadow = {
-  card: "0 8px 24px -12px rgba(28,107,109,0.25), 0 -4px 16px -8px rgba(255,255,255,0.4)",
-  button: "0 4px 16px -8px rgba(28,107,109,0.45)",
-  glass: "inset 0 1px 0 0 rgba(255,255,255,0.6)",
-  modal: "0 24px 64px -16px rgba(28,107,109,0.35)",
+export const spacing = {
+  0: 0,
+  1: 4,
+  2: 8,
+  3: 12,
+  4: 16,
+  5: 24,
+  6: 32,
+  8: 48,
+  10: 64,
+  16: 96,
+  20: 128,
+  24: 192,
 } as const;
 
-export const font = {
-  sans: "var(--font-inter), system-ui, -apple-system, sans-serif",
-  display: "var(--font-poppins), var(--font-inter), system-ui, sans-serif",
-  mono: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
+export const duration = {
+  instant: 0,
+  fast: 150,
+  base: 200,
+  slow: 320,
+  slower: 480,
 } as const;
 
-export const space = {
-  px: "1px",
-  0.5: "2px",
-  1: "4px",
-  2: "8px",
-  3: "12px",
-  4: "16px",
-  5: "20px",
-  6: "24px",
-  8: "32px",
-  10: "40px",
-  12: "48px",
-  16: "64px",
-  20: "80px",
+export const ease = {
+  standard: "cubic-bezier(0.4, 0, 0.2, 1)",
+  decelerate: "cubic-bezier(0, 0, 0.2, 1)",
+  accelerate: "cubic-bezier(0.4, 0, 1, 1)",
 } as const;
 
-export const breakpoint = {
-  sm: "640px",
-  md: "768px",
-  lg: "1024px",
-  xl: "1280px",
-  "2xl": "1536px",
+export const z = {
+  base: 0,
+  dropdown: 100,
+  sticky: 200,
+  fixed: 300,
+  overlay: 400,
+  modal: 500,
+  popover: 600,
+  toast: 700,
+  tooltip: 800,
 } as const;
 
-/**
- * Resolve a salon's web_theme overrides on top of the defaults.
- * Tenant can override: primary, accent, font (sans | display | mono).
- */
 export type SalonTheme = {
   primary?: string;
   primaryLight?: string;
   accent?: string;
-  font?: "inter" | "poppins" | "system";
+  font?: "inter" | "tajawal" | "system";
 };
 
 export function resolveTheme(overrides?: SalonTheme | null) {
   return {
-    primary: overrides?.primary ?? brand.primary,
-    primaryLight: overrides?.primaryLight ?? brand.primaryLight,
+    primary: overrides?.primary ?? brand.accent,
+    primaryLight: overrides?.primaryLight ?? brand.accentDim,
     accent: overrides?.accent ?? brand.accent,
     font: overrides?.font ?? "inter",
   };

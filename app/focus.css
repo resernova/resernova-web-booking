@@ -1,0 +1,26 @@
+/* WCAG 2.4.11 compliant focus indicator.
+ * 2px accent ring with 2px offset. Applied to all interactive elements
+ * via :focus-visible (keyboard navigation only — not mouse click). */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Respect user preference for reduced motion. Disable all animations
+ * and transitions when the user has requested them. Tailwind v4 handles
+ * this for utility classes, but custom CSS still needs the rule. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,58 +1,150 @@
 /**
  * Global CSS — Tailwind v4 @theme block (token-first).
  * Component styles below follow BEM-lite naming: .component-name__element--modifier.
+ *
+ * Token source of truth for the design system. All component styling
+ * consumes these CSS variables. DO NOT add new hex values directly in
+ * components — extend this block instead.
+ *
+ * Design language: Linear-style editorial restraint + Maghreb accent.
+ * See /docs/superpowers/specs/2026-09-18-resernova-web-design.md.
  */
 
 @import "tailwindcss";
+@import "./focus.css";
 
 @theme {
-  /* Primitive colors */
-  --color-primary-50: #e0f2f2;
-  --color-primary-100: #b3e0e1;
-  --color-primary-200: #80cdce;
-  --color-primary-300: #4db9bb;
-  --color-primary-400: #26a6a8;
-  --color-primary-500: #1c6b6d;
-  --color-primary-600: #124548;
-  --color-primary-700: #0d3335;
+  /* === COLOR (Linear-style monochrome + restrained accent) === */
 
-  --color-accent-500: #25d366;
-  --color-accent-600: #128c7e;
+  /* Light mode surfaces */
+  --color-canvas: #ffffff;
+  --color-surface: #fafafa;
+  --color-card: #ffffff;
 
-  --color-surface: #ffffff;
-  --color-surface-muted: #f4fafa;
-  --color-surface-elevated: #ffffff;
+  /* Ink (warm near-black — Linear-style) */
+  --color-ink: #08090a;
+  --color-ink-muted: #6b7280;
+  --color-ink-soft: #9ca3af;
+  --color-ink-inverse: #ffffff;
 
-  --color-text: #1a1a2e;
-  --color-text-muted: #5a6573;
-  --color-text-inverse: #ffffff;
+  /* Borders (warm hairlines — Stripe-style) */
+  --color-border: rgba(10, 10, 10, 0.08);
+  --color-border-strong: rgba(10, 10, 10, 0.16);
 
-  --color-error: #e53935;
-  --color-warning: #ff9f43;
-  --color-success: #25d366;
-  --color-info: #1c6b6d;
+  /* Single restrained accent (used <5% of canvas) */
+  --color-accent: #0f766e;
+  --color-accent-dim: #0b5f58;
+  --color-accent-soft: rgba(15, 118, 110, 0.08);
 
-  --color-border: #e0e5e8;
-  --color-border-strong: #b0b8bc;
+  /* States (reserved for feedback UI) */
+  --color-success: #1f8a4f;
+  --color-error: #b91c1c;
+  --color-warning: #b45309;
 
-  /* Typography */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-poppins), var(--font-inter), system-ui, sans-serif;
+  /* Magazine accents (used sparingly) */
+  --color-blush-soft: #faebe7;
+  --color-gold-warm: #d4b860;
 
-  /* Radii */
-  --radius-hero: 36px;
+  /* === TYPOGRAPHY === */
 
-  /* Shadows */
-  --shadow-card:
-    0 8px 24px -12px rgba(28, 107, 109, 0.25),
-    0 -4px 16px -8px rgba(255, 255, 255, 0.4);
-  --shadow-button: 0 4px 16px -8px rgba(28, 107, 109, 0.45);
-  --shadow-glass: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
-  --shadow-modal: 0 24px 64px -16px rgba(28, 107, 109, 0.35);
+  /* Inter variable for UI + body */
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-display:
+    var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono:
+    var(--font-jetbrains-mono, "JetBrains Mono"), ui-monospace, monospace;
 
-  /* Animations */
-  --animate-fade-in: fadeIn 0.2s ease-out;
-  --animate-slide-up: slideUp 0.3s ease-out;
+  /* Tajawal for Arabic accent (hero only) */
+  --font-arabic: var(--font-tajawal, "Tajawal"), sans-serif;
+
+  /* Type scale */
+  --text-display-xl: 4.5rem; /* 72px — hero XL */
+  --text-display-lg: 4rem; /* 64px — hero */
+  --text-display-md: 3rem; /* 48px — hero mobile / H1 */
+  --text-display-sm: 2.5rem; /* 40px — hero mobile */
+
+  --text-h1: 2.25rem; /* 36px */
+  --text-h2: 1.75rem; /* 28px */
+  --text-h3: 1.375rem; /* 22px */
+  --text-h4: 1.125rem; /* 18px */
+
+  --text-body-lg: 1.125rem; /* 18px — Figma standard */
+  --text-body: 1rem; /* 16px */
+  --text-body-sm: 0.875rem; /* 14px */
+  --text-caption: 0.8125rem; /* 13px */
+  --text-eyebrow: 0.75rem; /* 12px — uppercase, tracking */
+
+  /* Line heights (Figma standard: 1.55-1.65 for body) */
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.55;
+  --leading-loose: 1.65;
+
+  /* Letter spacing (Linear-style tight display) */
+  --tracking-tighter: -0.02em;
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.08em;
+
+  /* === RADIUS (Notion-style sharp — REJECTED Fresha pill) === */
+
+  --radius-xs: 4px;
+  --radius-sm: 8px; /* global default for inputs/buttons */
+  --radius-md: 12px; /* cards */
+  --radius-lg: 16px; /* modals */
+  --radius-image: 12px;
+  --radius-full: 9999px; /* avatars only */
+
+  /* === SPACING (Figma 8pt scale) === */
+  --spacing: 4 8 12 16 24 32 48 64 96 128 192;
+
+  /* === ELEVATION (composed y-offset + blur + alpha) === */
+
+  --shadow-xs: 0 1px 2px rgba(8, 9, 10, 0.06);
+  --shadow-sm: 0 1px 3px rgba(8, 9, 10, 0.08), 0 1px 2px rgba(8, 9, 10, 0.04);
+  --shadow-md: 0 4px 12px rgba(8, 9, 10, 0.08), 0 2px 4px rgba(8, 9, 10, 0.04);
+  --shadow-lg: 0 12px 32px rgba(8, 9, 10, 0.1), 0 4px 8px rgba(8, 9, 10, 0.04);
+  --shadow-xl: 0 24px 48px rgba(8, 9, 10, 0.12);
+  --shadow-overlay:
+    0 24px 64px rgba(8, 9, 10, 0.16), 0 0 0 1px rgba(8, 9, 10, 0.08);
+
+  /* === MOTION (Linear/Figma standard cubic-bezier) === */
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --duration-slower: 480ms;
+
+  /* === Z-INDEX (Figma convention) === */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-toast: 700;
+  --z-tooltip: 800;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-canvas: #08090a;
+    --color-surface: #0f1011;
+    --color-card: #131415;
+    --color-ink: #f7f8f8;
+    --color-ink-muted: #9ca3af;
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-accent: #5eead4;
+    --color-accent-dim: #14b8a6;
+  }
 }
 
 @keyframes fadeIn {
@@ -75,51 +167,27 @@
   }
 }
 
-/* Base */
-html,
-body {
-  font-family: var(--font-sans);
-  color: var(--color-text);
-  background-color: var(--color-surface-muted);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+.gradient-hero {
+  background-image: linear-gradient(
+    135deg,
+    #1c6b6d 0%,
+    #2a9d8f 50%,
+    #3abda2 100%
+  );
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-}
-
-/* Glassmorphism utility — used by HeroHeader, Modal, Card.surface */
 .glass {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: var(--shadow-glass);
+  box-shadow: var(--shadow-sm);
 }
 
-.gradient-hero {
-  background-image: linear-gradient(
-    135deg,
-    var(--color-primary-500) 0%,
-    var(--color-primary-400) 50%,
-    var(--color-primary-300) 100%
-  );
-}
-
-/* RTL support (ar-Darija) */
 [dir="rtl"] {
   text-align: right;
 }
 
-/* Honeypot field — visually hidden but in DOM */
 .honeypot {
   position: absolute !important;
   left: -10000px !important;
