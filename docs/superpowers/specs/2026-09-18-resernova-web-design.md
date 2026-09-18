@@ -1,8 +1,8 @@
 # ReserNova Web — Enterprise-Grade UI/UX Redesign — Design Spec
 
 **Date:** 2026-09-18
-**Visual direction:** B — Modern Editorial (GlossGenius-inspired)
-**Status:** Approved by user (token system confirmed)
+**Visual direction:** B + Direction-A Maghreb accent (calibrated)
+**Status:** Revised with research findings (Linear / Stripe / Cal.com / Figma / Notion / Beehiiv audit)
 **Author:** Claude (architect mode)
 
 ---
@@ -10,272 +10,425 @@
 ## 1. Context & Goals
 
 ### Why
-The current web app at `book.resernova.com/<slug>` is functional but reads as templated. The user wants an **enterprise-grade modern look that shows ReserNova's identity**. The Fresha-inspired redesign that shipped 2 days ago solved the UX flows but not the visual identity.
+The current web app at `book.resernova.com/<slug>` is functional but reads as templated. The Fresha-inspired redesign that shipped 2 days ago solved UX flows but not the visual identity — user feedback confirmed.
 
-### What we're building
-A complete UI system + page redesign that:
-- Looks **internationally credible** (procurement-safe, polished)
-- Carries **editorial gravitas** (magazine-spread layouts, generous whitespace)
-- Speaks to **Moroccan identity** through restraint (gold-N logo lockup + Arabic poetic line beneath French headlines), not literalism (no lantern icons, no mint tea)
-- Performs (LCP < 2.5s, CLS < 0.1)
-- Stays accessible (WCAG 2.1 AA)
+The original "Direction B — Modern Editorial (GlossGenius-inspired)" approved token system was correct in philosophy but underspecified in execution. This revision adds:
+- **Concrete execution tokens** drawn from Linear / Stripe / Cal.com / Figma / Notion / Beehiiv audit
+- **Anti-patterns explicitly rejected** (3-column feature grid, gradient mesh, carousel, bold display weight)
+- **Moroccan typographic signature** as a quiet hero accent (Tajawal/Cairo at weight 400 — the one thing that distinguishes ReserNova from every global competitor)
+- **Cal.com-style embedded live preview card** as the hero CTA
+- **Linear-style restraint everywhere else** (medium display weight, single restrained accent used <5%)
 
-### Constraints (hard requirements)
-- No breaking changes to the existing data model (`web_meta`, `provider_locations.opening_hours`, `services` schema, 14 routes all working)
-- i18n preserved — every label in fr/en/ar via existing labels pattern
-- Accessibility preserved — WCAG 2.1 AA minimum (radiogroup, aria-pressed, focus, contrast)
-- Performance budget — LCP < 2.5s on mobile, CLS < 0.1
-- Vercel deployment unchanged — no new env vars, no exotic bundling
-- All existing functionality intact — booking, cancel, reschedule, manage, legal
+### Goals (concrete + measurable)
+- Pixel-perfect spacing & typography (no "templated" feeling)
+- Editorial gravitas via restraint, not decoration
+- Distinctive without being orientalist (no arches, no zellige kitsch)
+- Performance: LCP < 2.5s mobile, CLS < 0.1
+- Accessibility: WCAG 2.1 AA minimum
+- Bilingual hero: French headline + subtle Arabic poetic line beneath
+
+### Constraints (unchanged from prior spec)
+- No breaking changes to data model
+- i18n preserved — every label in fr/en/ar
+- A11y: WCAG 2.1 AA
+- Vercel deployment unchanged — no new env vars
+- All 14 routes still working
 
 ---
 
-## 2. Token System (approved)
+## 2. Design Tokens (REVISED — calibrated against research)
 
-### Color palette
+### 2.1 Color palette (Linear-style monochrome + single restrained accent)
+
+**Light theme:**
 ```
-Canvas:    #FAFAF7 (warm off-white — magazine paper)
-Card:      #FFFFFF
-Ink:       #0E0E0E (near-black, editorial)
-Ink muted: #5A5A5A
-Ink soft:  #8A8A8A
-Border:    #E8E8E5 (warm hairline)
+Canvas:        #FFFFFF            (page surface)
+Surface:      #FAFAFA            (elevated panels, "paper" tone)
+Card:         #FFFFFF            (with 1px hairline border)
+Border:       rgba(10,10,10,0.08) (warm hairline)
+Ink:           #08090A            (primary text — warm near-black)
+Ink muted:     #6B7280            (secondary text)
+Ink soft:      #9CA3AF            (tertiary)
+Ink inverse:   #FFFFFF            (on dark)
 
-Primary:   #1C6B6D (existing brand teal — anchor)
-Primary 50/100/200/.../950 (full ramp to be generated)
-Accent:    #25D366 (WhatsApp green — chat surfaces only)
-Blush:     #E76F99 (editorial accent — buttons, badges)
-Gold:      #D4B860 (logo-04's "N" color, used sparingly)
+Accent:        #0F766E            (deep teal — used <5% of canvas)
+Accent dim:    #0B5F58            (hover, pressed)
+Success:      #1F8A4F            (confirmation)
+Error:        #B91C1C            (errors only)
+Warning:      #B45309            (warnings only)
 
-States: error/warning/success/info — each gets -bg / -border / -text triplet
-```
-
-### Typography
-```
-Display:  Inter (700, 800) — same family, different weight
-Body:     Inter (400, 500, 600) — already loaded
-Arabic:   Inter Arabic — keep one family
-
-Type sizes (rem):
-  display: 3.5 / 4 / 5 / 6 / 7
-  h1-h6:   2.25 / 1.875 / 1.5 / 1.25 / 1.125 / 1
-  body:    1, body-lg: 1.125, body-sm: 0.875
-  caption: 0.8125, micro: 0.6875
-
-Line heights: tight (1.1), snug (1.25), normal (1.5), relaxed (1.625), loose (2)
-Letter spacing: tighter (-0.04em), tight (-0.02em), normal, wide (0.04em), wider (0.08em)
+Magazine accents (used sparingly):
+Blush soft:   #FAEBE7            (hero card backgrounds only)
+Gold warm:    #D4B860            (logo-04 "N" accent — gold flourishes)
 ```
 
-### Motion
+**Dark theme (mirror):**
 ```
-Durations: instant (0ms), fast (120ms), base (200ms), slow (320ms), slower (480ms)
-Easings:
-  standard:    cubic-bezier(0.2, 0, 0, 1)        — most UI
-  decelerate:  cubic-bezier(0, 0, 0.2, 1)        — entrances
-  accelerate:  cubic-bezier(0.4, 0, 1, 1)        — exits
-  spring:      cubic-bezier(0.34, 1.56, 0.64, 1) — playful over-shoot
-
-Named transitions: fade, slide-up, scale-in, press
-
-Hover lift: translateY(-1px) + shadow swap sm→md, 180ms standard
-NO carousel / NO marquee / NO editorial 01/N counter (these would age fast; we keep things timeless)
+Canvas:        #08090A
+Surface:      #0F1011
+Border:       rgba(255,255,255,0.08)
+Ink:           #F7F8F8
+Ink muted:     #9CA3AF
+Accent:        #5EEAD4            (teal-mint for dark backgrounds)
 ```
 
-### Elevation (7 levels, tied to z-index)
+**Rationale:** Linear's #08090A is the warm-near-black that reads "premium ink" without being cold. Stripe's off-white #FAFAFA creates the magazine-paper feel. The single deep-teal accent #0F766E (used <5%) echoes ReserNova's existing brand teal while shifting it toward a more sophisticated, less saturated hue. No blush at full saturation — that's GlossGenius-clone territory.
+
+### 2.2 Typography (REVISED — Linear's medium weight signature)
+
+**Display (hero, page h1, large features):**
+- **Inter** variable font, weight **500 (medium)** — NOT 700+
+- This is the signature Linear/Stripe/Beehiiv move. Bold weight at 56–80px reads as "shouting" and lowers perceived sophistication. Medium weight holds presence without aggression.
+- Sizes: 56 / 64 / 72 / 80 / 96 (desktop), 36 / 40 / 48 / 56 (mobile)
+- Line height: 1.05–1.1 (tight on display)
+- Letter spacing: -0.02em (tight)
+
+**Subheadings / H2 / H3:**
+- Inter variable, weight 600 (semibold)
+- Sizes: 24 / 20 / 18 / 16 (desktop)
+- Line height: 1.25–1.4
+
+**Body:**
+- Inter variable, weight 400 / 500 / 600
+- Size: **18 (large — Figma standard)** / 16 (default) / 14 (small) / 13 (caption)
+- Line height: 1.55–1.65 (Figma standard)
+
+**Arabic display accent (NEW — the distinguishing move):**
+- **Tajawal** or **Cairo** at weight 400 (NOT bold), used in:
+  - The single poetic Arabic line beneath the French hero headline
+  - Marketing page eyebrow labels (NOT body)
+- Sets up a subtle "we are Moroccan" identity marker that no global competitor imitates
+
+**Monospace step indicators (NEW — Cal.com move):**
+- **JetBrains Mono** or **IBM Plex Mono** weight 500
+- Used for step numbers in the booking wizard ("01", "02", "03", "04")
+- Cal.com's signature move; reads as "this is a serious engineering-grade product"
+
+**Hierarchy summary:**
 ```
-z-base(0), z-raised(10), z-floating(20), z-sticky(30),
-z-overlay(40), z-modal(50), z-popover(60)
-Each: y-offset, blur, alpha — composed, not declared as raw rgba strings
+display:    Inter 500    56-96px (tight 1.05-1.1)
+h2:         Inter 600    24-32px
+h3:         Inter 600    18-22px
+body-lg:    Inter 400    18px / 1.55
+body:       Inter 400    16px / 1.55
+body-sm:    Inter 400    14px / 1.5
+caption:    Inter 500    13px / 1.4
+eyebrow:    Inter 600    12px / 1.0 / tracking 0.08em / uppercase
+arabic-poem: Tajawal 400 18-24px (hero only)
+mono-step:  JetBrains 500 14px (booking wizard only)
 ```
 
-### Spacing
+### 2.3 Spacing (Figma-style 8pt scale)
+
 ```
-4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 120 / 160
-Section vertical: 120px desktop, 64px mobile
-Container max-width: 1280px, 24px gutter
-Card padding: 32px
-Button padding: 16px H × 12px V (md), 24px × 16px (lg)
+4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128 / 192
+
+Section vertical padding:
+  desktop: 128px (was 120)
+  mobile:  64px
+
+Container max-width: 1280px
+  Gutter: 24px desktop / 16px mobile
+
+Card padding: 32px desktop / 24px mobile
+Button padding (md): 16px H × 12px V
+Button padding (lg): 24px H × 16px V
+
+Inter-card gap: 16px (Figma standard, was 24 — too generous)
+Inter-section gap: 96px (Figma standard)
 ```
 
-### Radius
+### 2.4 Radius (Notion-style — REVISED, was Fresha-pill style)
+
 ```
-xs 4, sm 8, md 12, base 16, lg 20, xl 24, 2xl 32, hero 36, full 9999
+Global default: 8px (Notion signature — was 9999px pill, which screams "Fresha clone")
+Inputs:         8px
+Buttons:        8px (NOT pills; this is the Linear/Stripe move)
+Cards:          12px
+Modals:         16px
+Image:          12px (NOT rounded — sharp 4px corners for product photography)
+Avatars:        9999px (this is the ONLY place to use full radius)
 ```
 
-### Focus ring (NEW — a11y gap fix)
+**Rationale:** The previous spec kept Fresha's pill buttons (9999px). Linear/Stripe/Cal.com/Notion/Beehiiv all use 8-12px sharp corners — they read as "professional product" not "boutique booking widget". This is the single biggest visual differentiator from Fresha/Mindbody/Boulevard.
+
+### 2.5 Motion (Linear + Figma standard — REVISED)
+
+**Curves:**
+- `standard:    cubic-bezier(0.4, 0, 0.2, 1)` — Material standard ease-out (Linear/Figma/Notion all use this)
+- `decelerate:  cubic-bezier(0, 0, 0.2, 1)` — entrances
+- `accelerate:  cubic-bezier(0.4, 0, 1, 1)` — exits
+
+**Durations:**
+```
+instant: 0ms
+fast:    150ms       (hover, color shifts)
+base:    200ms       (button press, default UI)
+slow:    320ms       (modals open/close, drawer slide)
+slower:  480ms       (page transitions — rarely used)
+```
+
+**REJECT:** spring/bounce easing (Linear/Stripe/Cal.com don't use it — feels playful). REJECT: 500ms+ durations (feels slow for product UI).
+
+**Hover:** `translateY(-1px) + shadow swap sm→md, 180ms standard`. NEVER scale.
+
+**Section enter:** `opacity 0→1 + translateY(24px → 0), 400ms decelerate, stagger 60ms`. Triggered by IntersectionObserver. Reduced-motion: skip translate, just opacity.
+
+**Page transitions:** No client-side route animation. Next.js App Router is too fast for it to feel intentional. Default instant.
+
+### 2.6 Elevation (7 levels tied to z-index)
+
+```
+z-base(0), z-raised(10), z-floating(20), z-sticky(30), z-overlay(40), z-modal(50), z-popover(60)
+
+Tokens (each = y-offset + blur + alpha, NOT raw rgba strings):
+  shadow-none:    none
+  shadow-xs:       0 1px 2px rgba(8,9,10,0.06)
+  shadow-sm:       0 1px 3px rgba(8,9,10,0.08), 0 1px 2px rgba(8,9,10,0.04)
+  shadow-md:       0 4px 12px rgba(8,9,10,0.08), 0 2px 4px rgba(8,9,10,0.04)
+  shadow-lg:       0 12px 32px rgba(8,9,10,0.10), 0 4px 8px rgba(8,9,10,0.04)
+  shadow-xl:       0 24px 48px rgba(8,9,10,0.12)
+  shadow-overlay:  0 24px 64px rgba(8,9,10,0.16), 0 0 0 1px rgba(8,9,10,0.08)
+  shadow-modal:    shadow-overlay + 8px hairline border
+  shadow-inset:    inset 0 1px 0 0 rgba(255,255,255,0.06)
+```
+
+### 2.7 Focus ring (NEW — a11y gap fix)
+
 ```css
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* WCAG 2.4.11 compliant: focus not obscured */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 ```
 
-### Distinguishing patterns (from Direction B)
-1. **Asymmetric hero** — 55% text / 45% image
-2. **Triplet image cards** — pastel color blocks (cream / blush / sage) each housing one service highlight
-3. (dropped) Editorial 01/N counter — section pagination style — *rejected as too dated*
-4. **Quantified trust stats** — "23% increase in repeat bookings"
-5. **Bilingual hero** — French headline + Arabic poetic line beneath
+### 2.8 Z-index scale (Figma convention)
+
+```
+z-base(0), z-dropdown(100), z-sticky(200), z-fixed(300),
+z-modal-backdrop(400), z-modal(500), z-popover(600), z-toast(700), z-tooltip(800)
+```
 
 ---
 
-## 3. Architecture
+## 3. Anti-Patterns to ACTIVELY Reject (from research)
 
-### Token source of truth
+Per the research audit, these dated moves must be avoided:
 
-**`app/globals.css`** (the `@theme` block) becomes the canonical token source.
-
-**`lib/theme/tokens.ts`** becomes a thin TypeScript mirror — typed against `@theme` values, used only for:
-- Tenant-override resolution (`resolveTheme(overrides)`)
-- Runtime CSS-variable overrides
-- Flutter-mobile cross-stack sync reference
-
-**`tailwind.config.ts`** is slimmed to `content` + plugins only (no `theme.extend` — that was duplicating `@theme`).
-
-### Component library structure
-
-```
-components/
-├── ui/                       # primitives (Button, Card, Input, Select, Modal, Toast, Tabs, Avatar, Badge, Icon)
-│                             # These wrap shadcn primitives (Radix + Tailwind) — but use OUR tokens, not default shadcn
-│                             # Single source of truth for visual feel
-├── marketing/                # Home (root), ServicesList, HeroHeader, FeatureGrid
-├── salon/                    # HeroHeader (gallery), ServiceCard, OpenHoursBadge, WhatsAppDeepLinkButton
-├── booking/                  # BookingWizard (single-page split), DateTimePicker (day strip), SlotGrid, ClientDetailsForm, ConfirmStep
-└── shared/                    # ErrorBoundary, EmptyState, LocaleSwitcher, HoneypotField
-```
-
-### State management
-- Server Components (RSC) for all data fetching + initial render
-- Client Components only for: form state (RHF), date strip (selection), slot grid (fetch + selection), modal flows
-- `unstable_cache` for the heavy reads (salon profile, services list) with proper tags for future revalidation
-- No Redux/Zustand — local state + form state is sufficient
+| Anti-pattern | Why amateur | Replacement |
+|---|---|---|
+| **3-column feature grid with icons** | Screams "2018 SaaS template" | Linear-style product-as-hero + 3 stacked captions, OR Cal.com-style embedded live preview |
+| **Stock photos of "diverse businesspeople pointing at screens"** | Signals "we have no real product imagery" | Real product screenshots in 12px-rounded cards with subtle shadow |
+| **Carousels / sliders with auto-rotate** | WCAG violation (vestibular issues); avg <1% engagement on slide 2+ | Single hero; tabs if you have multiple items |
+| **Hero with 5 CTAs** | Decision paralysis | ONE primary + ONE secondary CTA maximum |
+| **Gradient mesh backgrounds / glassmorphism cards** | Peak 2022 trend, now reads as "trying to look modern" | Solid #FAFAFA background with 1px hairlines |
+| **Bold (700+) hero headlines** | Reads as "shouting" at large sizes | Medium (500) display weight — Linear/Stripe/Beehiiv all do this |
+| **Hamburger menu on desktop** | Hides navigation from B2B buyers | Desktop nav shows all 4–6 top-level items inline |
+| **Hero with 3 stacked images + emoji + "🚀 Nouveau" badges** | 2018 startup cliche | Editorial hero with single product screenshot + eyebrow label |
 
 ---
 
-## 4. Page-by-page vision
+## 4. Page-by-page Vision (REVISED with concrete patterns)
 
 ### 4.1 Root `/` (home / marketing)
 
-**Layout:** Asymmetric hero (55% text left, 45% image collage right). Triplet image cards below ("Pilier 01 — Réservation", "Pilier 02 — Paiement", "Pilier 03 — Équipe"). Quantified trust stats in a slim strip.
-
-**Magazine grid:** Section headings use clean typographic hierarchy (no editorial counter). Bilingual hero: "Réservez votre rendez-vous beauté" / Arabic poetic line (placeholder copy pending native Arabic review).
+**Pattern:** Linear + Cal.com hybrid
+**Layout:** 7-col copy + 5-col embedded booking preview (Cal.com's signature move). The preview is a LIVE ReserNova booking card — let prospects use the product before signing up.
 
 **Hero elements:**
-- Wordmark monogram (logo-02) top-left in nav
-- Editorial H1 display
-- Gold accent line (1px, 80px wide) below H1 — signature flourish referencing logo-04
-- Subtitle in muted ink
-- Two CTAs: primary "Démarrer" (blush), secondary "Voir les salons" (text + arrow)
-- Right side: 3-image collage stacked asymmetrically (one main image + 2 small offsets), all with subtle teal-tinted overlays
+- Eyebrow label (12px, uppercase, tracking 0.08em, accent color): "RÉSERVATION EN LIGNE POUR SALONS"
+- Display H1 (Inter 500, 72px desktop / 40px mobile, line-height 1.05): "Vos clients réservent en 30 secondes." (fr) / "حجز المواعيد أصبح أسهل" (Arabic poetic line beneath, weight 400)
+- Subtitle (Inter 400, 18px, line-height 1.55, ink-muted): "ReserNova centralise vos rendez-vous, vos paiements et votre équipe — sur une plateforme moderne pensée pour le marché marocain."
+- Single CTA cluster:
+  - Primary: "Démarrer maintenant" (filled dark accent)
+  - Secondary: "Voir une démo live" (ghost with arrow)
+- Right side: Embedded live booking preview card showing service "Coupe + Brushing 30 min · 150 DH" with date strip + slot pills + "Réserver" CTA — all interactive (lets the visitor play)
 
-**CTAs that change:**
-- Primary: "Démarrer" / "Get started" / "ابدأ" — links to `/salons` (or stays on `/` if we add a search bar later)
-- Secondary: "Voir les salons" / "See salons" / "شاهد الصالونات"
+**Below hero:** Alternating two-column rows for benefits (text-left/media-right). Figma's pattern. Three benefit rows max:
+1. "Réservation 24/7" (with salon dashboard mockup screenshot)
+2. "Paiements & rappels automatisés" (with WhatsApp message mockup)
+3. "Synchronisation agenda en temps réel" (with calendar view mockup)
+
+**Trust strip (slim, single-row):**
+- 12 grayscale salon logos in marquee scroll (Figma pattern). Auto-scroll at 30s/loop. Pause on hover.
+- Below: 3 quantified stats inline: "23% plus de réservations récurrentes / 75% de réduction des no-shows / 40h économisées par mois"
+
+**How it works (Cal.com pattern):**
+- 3 equal columns with monospace step labels above short headings
+- 01 — "Vos clients réservent"
+- 02 — "Vous êtes notifié"
+- 03 — "Vous gagnez du temps"
+
+**Footer (Beehiiv-style):**
+- Single-row, sparse, ink-muted
+- 3 columns: product / company / legal
+- Logo + tagline on the left
 
 ### 4.2 `/<slug>` (salon profile)
 
-**Layout:** Magazine-spread, single long-scroll page. Hero gallery (60/40 split desktop, full-width mobile carousel). Sticky right-rail summary card (desktop only) with service card, location, hours, action buttons. Below: long-form sections — about, services preview (3-up), hours + location, reviews (placeholder for Phase 2).
+**Pattern:** Stripe-style editorial density
+**Layout:** Magazine-spread, single long-scroll. Hairline rules between sections.
 
-**Hero elements (refresh from current HeroHeader):**
-- 60/40 image split, 1 large + 2 thumbnails
+**Hero elements:**
+- 60/40 image split (large left + 2 stacked thumbnails right)
+- Below images: editorial text block (centered, narrow)
+- Eyebrow (Tajawal 400 if ar, Inter 600 if fr): category name (e.g., "SALON & BIEN-ÊTRE" or "صالون وعناية")
+- Display H1 (Inter 500, 56–64px desktop / 36–40px mobile): business name
+- Sub-headline (Inter 400, 18px): description
+- Open-status dot (small, left of "Réserver" CTA)
+- Single CTA: "Réserver" (filled accent) + secondary "Appeler" (ghost)
 
-- Gallery-first identity block (category → name → rating → open-status dot)
-- Inline CTA "Réserver" + "Voir l'adresse"
+**Below hero:** Services preview as a VERTICAL LIST (3 rows max), then "Voir tous les services →" link.
 
-**Magazine touches:**
-- Section dividers: typographic `* * *` instead of `<hr>`
-- Asymmetric grids where possible (avoid 3-col / 2-col symmetry everywhere)
-- Bilingual greeting in the salon description block (French + Arabic poetic line)
+**About section:** Long-form copy with images in 12px-rounded cards. Section heading uses eyebrow + h2.
+
+**Hours + Location:** Two-column block. Hours as a table with day rows. Location as text + optional map embed.
 
 ### 4.3 `/<slug>/services` (catalog)
 
-**Layout:** Vertical list (current ServicesList), but with editorial polish — alternating row backgrounds (every other row has very subtle blush-tint), inline category chip strip at top, sort dropdown to the right.
+**Pattern:** Linear + Notion
+**Layout:** Vertical list, alternating subtle backgrounds (every other row has very slight blush-tint `#FAEBE7`).
 
 **Per-row layout:**
 - 80×80 thumbnail | name + duration | price + inline "Réserver →" link
-- On hover: row gains subtle blush background + the "Réserver →" link shifts to teal
-- Tap target: entire row (not just the link)
+- 8px radius (Notion-style) on thumbnail + row
+- Hover: subtle blush background + "Réserver →" shifts to accent color
+- Tap target: entire row, not just link
 
-### 4.4 `/<slug>/book/[serviceId]` (booking)
+### 4.4 `/<slug>/book/[serviceId]` (booking wizard)
 
-**Layout:** Single-page split (35% sticky sidebar + 65% main column). No stepper — section headers carry progression.
+**Pattern:** Cal.com embedded booking + Linear restraint
+
+**Layout:** Single-page split (35% sticky sidebar + 65% main column)
 
 **Sidebar (sticky):**
-- Service summary (name + duration + price)
-- Staff selector ("Tout professionnel" default, dropdown of staff)
+- Service summary card (12px radius, NOT pill)
+- Staff selector ("Tout professionnel" default, dropdown)
 - Live total (appears when slot is selected)
-- Triangle edge connecting to main column
+- Gold accent line under "Votre réservation"
 
-**Main column — three sections:**
-1. **Date & heure** — day strip (14 days visible, prev/next chevrons) → SlotGrid (3-col pills, full accent when selected)
-2. **Vos informations** — name, phone, email, WhatsApp opt-in, special requests (textarea), honeypot (hidden), min-time-on-page gate (3s)
-3. **Confirm booking** — summary card (service + slot + price + total), single "Confirmer la réservation" button (blush, full-width, disabled until slot + form valid)
+**Main column — three sections (no stepper indicator — Cal.com move):**
 
-**Motion:** Scroll-in fade-up on section headers (24px translate, 400ms decelerate, stagger 80ms)
+1. **Date & heure**
+   - Day strip (14 days visible, prev/next chevrons, **monospace step numbers** for week labels)
+   - SlotGrid below (3-col pills, 8px radius, three visual states: available / disabled / "almost-full" with amber border)
+
+2. **Vos informations**
+   - Name + phone + email fields (Inter, 8px radius inputs)
+   - WhatsApp opt-in checkbox (small, secondary)
+   - Special requests textarea (expanded by default, not hidden behind a toggle)
+   - Honeypot (hidden via Tailwind `sr-only`)
+   - Min-time-on-page gate (3s) before submit enables
+
+3. **Confirmer**
+   - Single full-width CTA: "Confirmer la réservation" (filled accent, hover lift -1px)
+   - Below CTA: "Retour au salon" link (text + arrow, ink-muted)
 
 ### 4.5 `/<slug>/book/confirm/<bookingRef>` (post-book)
 
-**Layout:** Centered success state. Large monogram + "Réservation confirmée !" H1. Bilingual sub. Then: booking summary card (8-char reference), 3 CTAs (Ajouter au calendrier / Envoyer sur WhatsApp / Retour au salon). Below: salon name + "Merci de votre confiance."
+**Pattern:** Linear success-state
 
-**Magazine touches:** Gold accent line under H1 (echo logo-04 N). Single hero card with extra-large type for the booking reference.
+**Layout:** Centered single column
+
+**Elements:**
+- Large monogram logo (logo-02) at top
+- Display H1 (Inter 500, 48px): "Réservation confirmée !" / "تم تأكيد الحجز"
+- Reference number in monospace, large, accent color
+- Booking summary card (12px radius, hairline border, 8px shadow-sm)
+- 3 horizontal CTAs (single row desktop, stacked mobile):
+  - Primary: "Ajouter au calendrier" (filled accent)
+  - Secondary: "Envoyer sur WhatsApp" (filled WhatsApp-green)
+  - Tertiary: "Retour au salon" (ghost)
 
 ### 4.6 `/<slug>/book/manage#t=<token>` (manage)
 
-**Layout:** Card-based. Three sections: booking summary (read-only), actions (cancel + reschedule), contact salon.
-
-**Visual:** Same single-page split as booking, but inverted (actions on left, summary on right) — Fresha-style "you're in control" framing.
+**Layout:** Card-based, similar to confirmation
 
 ### 4.7 `/<slug>/legal` (privacy + terms)
 
-**Layout:** Long-form prose, magazine-spread. Max-width 65ch. H1 + H2 hierarchy. Bilingual legal preamble (French + Arabic). Bordered callout for "right to erasure" (CNDP / Loi 09-08).
+**Pattern:** Stripe Docs editorial
+
+**Layout:** Long-form prose, max-width 65ch
+- H1 + H2 + H3 hierarchy
+- Bilingual legal preamble (French + Arabic)
+- Bordered callout for "right to erasure" (CNDP / Loi 09-08)
 
 ### 4.8 Not-found page
 
-**Layout:** Same gradient fallback as current. Editorial flourish: monogram + "404" + 1-line bilingual copy + 2 CTAs (home + salons).
+**Pattern:** Linear 404
+**Layout:** Editorial with monogram + "404" + bilingual copy + 2 CTAs
 
 ---
 
 ## 5. Component Library Spec
 
-### Buttons
+### Buttons (Linear + Stripe pattern — 8px radius, NOT pills)
+
+```css
+/* Primary CTA = filled accent (deep teal #0F766E) */
+.btn-primary {
+  bg: var(--color-accent);
+  color: var(--color-ink-inverse);
+  border: none;
+  padding: 16px 24px;       /* md */
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  hover: bg = var(--color-accent-dim); translateY(-1px);
+  transition: 180ms standard;
+}
+
+/* Secondary CTA = ghost (transparent + hairline border) */
+.btn-secondary {
+  bg: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+  ...
+}
+
+/* Tertiary CTA = text only (with arrow glyph) */
+.btn-tertiary {
+  bg: transparent;
+  color: var(--color-accent);
+  border: none;
+  text-decoration: none;
+  ...
+}
+```
+
+**Sizes:** xs / sm / md (default) / lg — all share same border-radius and motion.
+
+### Inputs (8px radius, hairline border)
 
 ```
-# Primary CTA = bg=primary (teal) — main form/booking actions
-# Secondary CTA = bg=blush (editorial) — hero CTAs, "Voir tout" type links
-Primary:    full pill, bg=primary, text=white, hover:bg=primaryDark, shadow-button
-Secondary:  full pill, bg=blush, text=white, hover:bg=blushDark, shadow-button
-Tertiary:   full pill, bg=white, text=ink, border=border, hover:bg=canvas
-Ghost:      full pill, bg=transparent, text=ink, hover:bg=canvas
-Icon:       size=40px, full pill, same colors as primary/secondary
+Default:    bg=white, border=border-color, radius=8px, focus=accent + 2px ring
+Error:      border=error + error-bg ring
+Disabled:   bg=surface, text=ink-soft
+Search:     same as default with leading icon
 ```
 
-All buttons: 16px H × 12px V padding (md) or 24px × 16px (lg), radius=full, transition=180ms standard.
-
-### Inputs
+### Cards (12px radius, 1px hairline)
 
 ```
-Default:   bg=white, border=border, radius=8px, focus:border=primary + focus ring
-Error:     border=error, + error-bg ring
-Disabled:  bg=canvas, text=ink soft
+Base:       bg=white, radius=12px, border=rgba(0,0,0,0.06), shadow-sm on hover
+Media:      Base + 16:9 image, 12px radius
+Elevated:   Base + shadow-md
 ```
 
-### Cards (3 variants)
-
-```
-Base:     bg=white, radius=lg (20px), shadow=sm, hover:shadow=md
-Media:    Base + 16:9 image on top, content below
-Elevated: Base + shadow=md, for floating UI
-```
-
-### Modal / Sheet
+### Modal / Sheet (16px radius)
 
 ```
 Width:    max-w-md (mobile) or max-w-lg (desktop)
-Radius:   lg (20px)
-Shadow:   shadow-modal
-Backdrop: bg=ink / 50% opacity
-Animation: scale-in 200ms spring + fade backdrop 200ms standard
+Radius:   16px
+Shadow:   shadow-overlay
+Animation: scale-in 200ms decelerate
+Backdrop: rgba(8,9,10,0.5)
 ```
 
 ### Toast
@@ -283,8 +436,8 @@ Animation: scale-in 200ms spring + fade backdrop 200ms standard
 ```
 Top-right stack, max 3 visible
 Variants: success / error / info / warning
-Radius:    md (12px)
-Auto-dismiss: 5s (configurable)
+Radius:    8px
+Auto-dismiss: 5s
 ```
 
 ---
@@ -292,119 +445,109 @@ Auto-dismiss: 5s (configurable)
 ## 6. Motion Spec
 
 ### Page transitions
-- No client-side route animation — Next.js App Router handles navigation too fast for it to feel intentional. Default instant.
+- No client-side route animation. Next.js App Router is too fast.
 
-### Hover / micro-interactions
-- Button color shift: 120ms standard
-- Button lift: 180ms standard + shadow swap sm→md
-- Card lift on hover: 220ms decelerate + shadow md→lg
+### Hover micro-interactions
+- Button color shift: 150ms standard
+- Button lift: 180ms standard + 1px translateY + shadow-sm→md swap
 - Link color shift: 100ms standard
+- Card hover: 220ms decelerate + 1px translateY + shadow swap
 
-### Section enter
-- Fade-up on scroll into view: 24px translateY → 0, 400ms decelerate, stagger 80ms
+### Section enter (scroll-in fade-up)
+- opacity 0→1 + translateY(24px → 0), 400ms decelerate, stagger 60ms
 - Triggered by IntersectionObserver (one-shot per section)
-- Reduced-motion respect: `prefers-reduced-motion: reduce` → no translate, just opacity
+- Reduced-motion: skip translate, just opacity
 
-### Form / wizard transitions
-- Day strip pill: 180ms scale 1.0→1.04 on tap (light haptic feel)
+### Form interactions
+- Field focus: 120ms border + outline ring appear
+- Day-strip pill select: 180ms scale 1.0→1.04 + accent fill (subtle haptic feel)
 - Slot pill select: 240ms color shift + bg fill
-- Form field focus: 120ms border + 120ms outline ring appear
 
 ### Loading states
-- Skeleton screens (no spinners). Use `bg-zinc-100 animate-pulse` rounded rectangles matching content layout.
-- Page transition: keep prior content visible until new content renders (no blank flash).
+- Skeleton screens (no spinners). `bg-zinc-100 animate-pulse` rounded rectangles matching content layout.
+- Page transition: keep prior content visible until new content renders.
 
 ---
 
 ## 7. i18n + a11y Contract
 
 ### i18n
-
-Every visible string is in a `labels = { fr, en, ar }` map. The component receives a `locale: "fr" | "en" | "ar"` prop. RTL: applied via `dir="rtl"` on `<html>` when locale is `ar`.
-
-Arabic-specific:
-- Use full Tashkil in hero display only
+- Every visible string in `labels = { fr, en, ar }` map
+- Component receives `locale: "fr" | "en" | "ar"` prop
+- RTL: applied via `dir="rtl"` on `<html>` when locale is `ar`
+- Arabic hero: Tajawal 400, 18-24px, weight light, subtle decorative
 - Pluralization via `Intl.PluralRules` (built-in)
-- Number formatting via `Intl.NumberFormat` (built-in) — `ar-MA`, `en-MA`, `fr-MA`
+- Number formatting via `Intl.NumberFormat` (built-in)
 
-### Accessibility
-
-- WCAG 2.1 AA minimum
-- Color contrast: primary on white = 7.2:1 (passes AAA), blush on white = 4.8:1 (passes AA)
-- All interactive elements: visible focus ring (`:focus-visible` rule)
+### Accessibility (WCAG 2.1 AA)
+- Color contrast: ink-on-canvas = 16:1 (AAA); accent-on-canvas = 4.9:1 (AA)
+- Focus visible: 2px accent ring with 2px offset (universal)
 - Slot grid: `role="radiogroup"` with arrow-key navigation
 - Day strip: `role="listbox"` with `aria-selected`
 - Form fields: `aria-invalid` on error, `aria-describedby` for help text
-- Honeypot field hidden with `aria-hidden="true"` + visually-hidden class
+- Honeypot hidden with `aria-hidden="true"`
 - Live regions for booking status updates (`aria-live="polite"`)
+- prefers-reduced-motion respected
 
 ---
 
 ## 8. Performance Budget
 
-- **LCP:** < 2.5s on Moto G4 / 3G (target < 2.0s on Wi-Fi)
-- **CLS:** < 0.1 (reserve space for hero image, no late-loading layout shift)
-- **JS bundle:** < 200KB gzipped per route (Next.js App Router default)
-- **Images:** AVIF/WebP via `next/image`, explicit width/height to prevent CLS
-- **Fonts:** 2 weights max (Inter 400 + 700), subset to Latin + Arabic
-- **CSS:** Tailwind v4 only, no runtime CSS-in-JS
+- LCP: < 2.5s on Moto G4 / 3G
+- CLS: < 0.1 (reserve image dimensions)
+- JS bundle: < 200KB gzipped per route
+- Images: AVIF/WebP via `next/image`, explicit width/height
+- Fonts: 3 weights max (Inter 400 + 500 + 600), subset to Latin + Arabic
+- CSS: Tailwind v4 only, no runtime CSS-in-JS
 
 ---
 
-## 9. Migration Plan (existing → new)
+## 9. Migration Plan (REVISED — 8 PRs, each independently reviewable + revertible)
 
-The redesign is a **progressive token migration** then **page-by-page replacement**:
-
-1. **Token migration** (single PR, ~3 hrs):
-   - Update `app/globals.css` `@theme` block with full token system
-   - Update `lib/theme/tokens.ts` mirror
-   - Slim `tailwind.config.ts`
-   - Add `app/focus.css` for global focus-visible rule
-
-2. **Component primitives** (single PR, ~4 hrs):
-   - Build `components/ui/Button.tsx`, `Card.tsx`, `Input.tsx`, `Modal.tsx`, `Toast.tsx`, `Badge.tsx`, `Icon.tsx`
-   - All consume the new tokens
-   - Use Radix primitives where applicable (Modal, Toast, Select)
-
-3. **Page-by-page** (one PR per major page):
-   - PR 1: Root `/` + `not-found` (home + 404 — these set the visual tone)
-   - PR 2: `/<slug>` salon profile (largest visual impact)
-   - PR 3: `/<slug>/services` catalog
-   - PR 4: `/<slug>/book/[serviceId]` booking wizard
-   - PR 5: `/<slug>/book/confirm/[bookingRef]` + `/<slug>/book/manage#t=<token>` + `/<slug>/legal`
-
-Each PR is independently reviewable + revertible.
+| # | PR | Scope | Files |
+|---|---|---|---|
+| 1 | Token migration | Full `@theme` block in globals.css + tokens.ts mirror + slim tailwind.config + focus.css | 4 files |
+| 2 | UI primitives | Button, Card, Input, Modal, Toast, Badge — all consume new tokens | ~7 new files |
+| 3 | Marketing site (root + not-found) | Sets visual tone for the rest | 2 files |
+| 4 | Salon profile (`/<slug>`) | Largest visual impact | 4 files |
+| 5 | Services catalog (`/<slug>/services`) | Vertical list polish | 2 files |
+| 6 | Booking wizard (`/<slug>/book/[serviceId]`) | Most complex page | 3 files |
+| 7 | Confirmation + manage + legal | Polish + editorial density | 3 files |
+| 8 | Visual QA pass + polish | Catch anything missed | various |
 
 ---
 
-## 10. Risks
+## 10. Risk Mitigation
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| i18n regression (forgot to translate a label) | Medium | High | Lint rule: `no-restricted-syntax` for hardcoded French in components |
-| A11y regression (lost focus ring, lost radiogroup role) | Medium | High | Add `@axe-core/playwright` smoke tests in CI |
-| Performance regression (new tokens + components bloat CSS bundle) | Low | Medium | Tailwind v4 JIT prunes unused tokens; measure CSS size in CI |
-| Visual inconsistency (component primitives don't match all existing usages) | High | Medium | Refactor hero + booking wizard FIRST (high-traffic), accept temporary inconsistency on lower-traffic pages |
-| LocaleSwitcher missing for ar (we currently have no UI switcher) | Low | Low | Add a discreet `fr | en | ar` switcher in the nav |
-| RTL breaks layout (e.g., asymmetric hero in ar) | Medium | Medium | Test every page in `dir="rtl"` early; the SalonCard / hero gallery must mirror |
+| Bold-display regression (reflex to 700+ for hero) | High | Medium | ESLint rule + code review checklist |
+| Fresha-clone trap (rounded pills everywhere) | High | High | Visual QA: every new component passes the "Would Linear ship this?" test |
+| Orientalist cliche (lantern icons, mint tea) | Medium | High | Blocklist in PR review; spec explicitly forbids literalism |
+| i18n regression | Medium | High | Lint rule + RTL snapshot tests |
+| A11y regression | Medium | High | axe-core smoke tests in CI |
+| Arabic hero poetic line is awkward literal translation | Medium | Low | Native Arabic review before final deployment |
 
 ---
 
-## 11. Order of operations
+## 11. The One Distinguishing Move (restated)
 
-1. Approve this spec
-2. Token migration PR (step 9.1)
-3. UI primitives PR (step 9.2)
-4. Home + 404 PR (PR 1)
-5. Salon profile PR (PR 2)
-6. Services catalog PR (PR 3)
-7. Booking wizard PR (PR 4)
-8. Confirmation + manage + legal PR (PR 5)
-9. Final smoke test against staging
-10. Deploy to production
+What separates ReserNova from every competitor:
 
-Each PR is reviewable + revertible independently.
+**Editorial restraint (Linear-grade) + a single Maghreb typographic signature (Tajawal/Cairo at 400 in the hero only).**
+
+Every global competitor executes editorial premium. None of them speak North Africa without going literalist. We use editorial restraint everywhere — Inter, medium weight, monochrome, single accent used <5%, generous spacing. And we add ONE quiet move: a single Tajawal/Cairo line beneath the French hero headline. That's it. No arches, no zellige patterns, no desert photography. Just a typographic signature that says "we are Moroccan" without performing it.
 
 ---
 
-**Status:** Ready for user review. Once approved, proceed to implementation via writing-plans skill.
+## 12. Order of operations
+
+1. Approve this revised spec
+2. PR 1: Token migration
+3. PR 2: UI primitives
+4. PRs 3-7: Page-by-page redesign
+5. PR 8: Visual QA
+6. Final smoke test against staging
+7. Deploy to production
+
+**Status:** Revised spec ready for user approval.
