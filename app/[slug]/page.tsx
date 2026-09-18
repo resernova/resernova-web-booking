@@ -65,6 +65,9 @@ export default async function SalonProfilePage({
       <HeroHeader
         businessName={salon.businessName}
         slug={salon.publicSlug}
+        category="Salon & Bien-être"
+        openingHours={salon.openingHours}
+        timeZone={salon.timeZone}
         heroImageUrl={salon.heroImageUrl}
       />
 

@@ -1,6 +1,8 @@
 /**
- * ServiceCard — 2-col grid card on the catalog page.
- * Photo (4:3), name, duration, MAD price, short description, "Choisir" CTA.
+ * ServiceCard — flat list row (Fresha-inspired).
+ *
+ * Layout: 80×80 thumbnail | name + duration | price + inline "Réserver" link
+ * No hover-lift. Hover = inline link color change only.
  */
 import Link from "next/link";
 
@@ -19,17 +21,17 @@ const labels = {
   fr: {
     duration: (m: number) => `${m} min`,
     price: (n: number) => `${n} DH`,
-    cta: "Choisir",
+    cta: "Réserver",
   },
   en: {
     duration: (m: number) => `${m} min`,
     price: (n: number) => `${n} DH`,
-    cta: "Choose",
+    cta: "Book",
   },
   ar: {
     duration: (m: number) => `${m} دقيقة`,
     price: (n: number) => `${n} درهم`,
-    cta: "اختيار",
+    cta: "احجز",
   },
 };
 
@@ -52,68 +54,52 @@ export function ServiceCard({
   slug,
   serviceId,
   name,
-  description,
   durationMinutes,
   price,
   photoUrl,
   locale = "fr",
 }: Props) {
   const t = labels[locale];
+  const initial = name.charAt(0).toUpperCase();
 
   return (
-    <article className="group overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-card transition-transform hover:-translate-y-0.5">
-      {photoUrl && (
-        <div className="aspect-[4/3] overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+    <Link
+      href={`/${slug}/book/${serviceId}`}
+      className="group flex items-center gap-4 rounded-2xl border border-[var(--color-border)] bg-white p-3 transition-colors hover:bg-zinc-50 sm:p-4"
+    >
+      <div className="size-20 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-[var(--color-primary-100)] to-[var(--color-primary-500)] sm:size-24">
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoUrl}
-            alt={name}
-            className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]"
+            alt=""
+            className="h-full w-full object-cover"
             loading="lazy"
           />
-        </div>
-      )}
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-lg font-semibold leading-tight">
-            {name}
-          </h3>
-          <span className="shrink-0 rounded-full bg-[var(--color-primary-500)]/10 px-3 py-1 text-sm font-semibold text-[var(--color-primary-500)]">
-            {formatMAD(price, locale)}
-          </span>
-        </div>
-        {description && (
-          <p className="mt-2 line-clamp-2 text-sm text-[var(--color-text-muted)]">
-            {description}
-          </p>
+        ) : (
+          <div className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-white">
+            {initial}
+          </div>
         )}
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-xs font-medium text-[var(--color-text-muted)]">
-            ⏱ {t.duration(durationMinutes)}
-          </span>
-          <Link
-            href={`/${slug}/book/${serviceId}`}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-500)] px-4 py-2 text-sm font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {t.cta}
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M7 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
-        </div>
       </div>
-    </article>
+
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate font-semibold text-[var(--color-text)]">
+          {name}
+        </h3>
+        <p className="mt-0.5 text-sm text-[var(--color-text-muted)]">
+          ⏱ {t.duration(durationMinutes)}
+        </p>
+      </div>
+
+      <div className="flex flex-shrink-0 flex-col items-end">
+        <span className="font-display text-base font-bold text-[var(--color-text)]">
+          {formatMAD(price, locale)}
+        </span>
+        <span className="mt-0.5 text-sm font-semibold text-[var(--color-primary-500)] transition-colors group-hover:text-[var(--color-primary-600)]">
+          {t.cta} →
+        </span>
+      </div>
+    </Link>
   );
 }

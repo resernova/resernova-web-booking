@@ -1,6 +1,7 @@
 /**
  * Services catalog page — RSC shell + Client filter component.
- * Renders the full list of published services with category chips + sort.
+ * Renders the full list of published services as a vertical list with
+ * category chips + sort (Fresha-inspired).
  */
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -10,7 +11,7 @@ import {
   getPublishedServices,
   getServiceCategories,
 } from "@/server/queries/getPublishedServices";
-import { ServicesGrid } from "./ServicesGrid";
+import { ServicesList } from "@/components/marketing/ServicesList";
 
 type RouteParams = { slug: string };
 
@@ -47,10 +48,10 @@ export default async function ServicesPage({
 
   return (
     <main className="min-h-dvh pb-16">
-      <div className="gradient-hero rounded-b-[36px] px-4 pb-8 pt-10 text-white sm:px-6">
+      <div className="border-b border-zinc-200 bg-white px-4 pb-6 pt-8 sm:px-6">
         <Link
           href={`/${salon.publicSlug}`}
-          className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white"
+          className="inline-flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
         >
           <svg
             width="16"
@@ -69,23 +70,21 @@ export default async function ServicesPage({
           </svg>
           {salon.businessName}
         </Link>
-        <h1 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">
+        <h1 className="mt-4 font-display text-3xl font-bold text-[var(--color-text)] sm:text-4xl">
           Nos services
         </h1>
-        <p className="mt-2 text-white/85">
+        <p className="mt-2 text-sm text-[var(--color-text-muted)]">
           {services.length} prestation{services.length > 1 ? "s" : ""}{" "}
           disponible{services.length > 1 ? "s" : ""}
         </p>
       </div>
 
-      <div className="mx-auto -mt-6 max-w-5xl px-4 sm:px-6">
-        <div className="glass rounded-3xl px-4 py-6 sm:px-6">
-          <ServicesGrid
-            slug={salon.publicSlug}
-            services={services}
-            categories={categories}
-          />
-        </div>
+      <div className="mx-auto -mt-2 max-w-3xl px-4 py-8 sm:px-6">
+        <ServicesList
+          slug={salon.publicSlug}
+          services={services}
+          categories={categories}
+        />
       </div>
     </main>
   );

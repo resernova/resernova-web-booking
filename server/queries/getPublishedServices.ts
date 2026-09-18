@@ -2,6 +2,11 @@
  * Server query — fetch published services for a salon.
  * Uses the public SELECT pattern on services table (existing RLS allows anon
  * SELECT of status='published' rows).
+ *
+ * Note: `services.availability json` was DROPPED by mobile migration 014
+ * (the two-layer model puts hours on `provider_locations.opening_hours`).
+ * Do NOT reference it here — silent SELECT failures caused services to not
+ * render on the salon page. Fix is to omit the column from the select.
  */
 import "server-only";
 import { createPublicAnonClient } from "@/lib/supabase/server";
@@ -16,7 +21,6 @@ export type PublishedService = {
   serviceType: string | null;
   categoryId: string | null;
   photos: string[] | null;
-  availability: unknown;
   locationId: string | null;
 };
 
@@ -26,7 +30,7 @@ export const getPublishedServices = unstable_cache(
     const { data, error } = await supabase
       .from("services")
       .select(
-        "id, name, description, price, duration_minutes, service_type, category_id, photos, availability, location_id",
+        "id, name, description, price, duration_minutes, service_type, category_id, photos, location_id",
       )
       .eq("provider_id", providerId)
       .eq("status", "published")
@@ -46,7 +50,6 @@ export const getPublishedServices = unstable_cache(
       serviceType: s.service_type,
       categoryId: s.category_id,
       photos: s.photos ?? null,
-      availability: s.availability,
       locationId: s.location_id,
     }));
   },
@@ -62,7 +65,7 @@ export async function getServiceById(serviceId: string) {
   const { data, error } = await supabase
     .from("services")
     .select(
-      "id, name, description, price, duration_minutes, service_type, category_id, photos, provider_id, location_id, availability",
+      "id, name, description, price, duration_minutes, service_type, category_id, photos, provider_id, location_id",
     )
     .eq("id", serviceId)
     .eq("status", "published")
@@ -81,7 +84,6 @@ export async function getServiceById(serviceId: string) {
     photos: data.photos ?? null,
     providerId: data.provider_id,
     locationId: data.location_id,
-    availability: data.availability,
   };
 }
 

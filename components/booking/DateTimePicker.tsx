@@ -1,6 +1,13 @@
 /**
- * DateTimePicker — date selector for the wizard.
- * Server-rendered calendar grid (next 30 days, weekdays only optionally).
+ * DateTimePicker — horizontally scrollable day strip (Fresha-inspired).
+ *
+ * Replaces the previous full-month calendar grid. 14 visible days at a time,
+ * prev/next chevrons to shift the window. Selected day = full accent fill.
+ *
+ * Same Props API as before so SlotGrid doesn't need to change:
+ *   value: ISO date string (e.g., "2026-09-20") or null
+ *   onChange: (date: string) => void
+ *   locale: 'fr' | 'en' | 'ar'
  */
 "use client";
 
@@ -16,169 +23,190 @@ type Props = {
 
 const labels = {
   fr: {
-    next: "Mois suivant",
-    prev: "Mois précédent",
-    monthNames: [
-      "Janvier",
-      "Février",
-      "Mars",
-      "Avril",
-      "Mai",
-      "Juin",
-      "Juillet",
-      "Août",
-      "Septembre",
-      "Octobre",
-      "Novembre",
-      "Décembre",
+    prev: "Jours précédents",
+    next: "Jours suivants",
+    weekdays: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+    months: [
+      "janv.",
+      "févr.",
+      "mars",
+      "avr.",
+      "mai",
+      "juin",
+      "juil.",
+      "août",
+      "sept.",
+      "oct.",
+      "nov.",
+      "déc.",
     ],
-    dayNames: ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"],
     today: "Aujourd'hui",
   },
   en: {
-    next: "Next month",
-    prev: "Previous month",
-    monthNames: [
-      "January",
-      "February",
-      "March",
-      "April",
+    prev: "Previous days",
+    next: "Next days",
+    weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    months: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
       "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ],
-    dayNames: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     today: "Today",
   },
   ar: {
-    next: "الشهر التالي",
-    prev: "الشهر السابق",
-    monthNames: [
+    prev: "أيام سابقة",
+    next: "أيام لاحقة",
+    weekdays: ["إث", "ثل", "أر", "خم", "جم", "سب", "أحد"],
+    months: [
       "يناير",
       "فبراير",
       "مارس",
       "أبريل",
-      "ماي",
+      "مايو",
       "يونيو",
-      "يوليوز",
-      "غشت",
-      "شتنبر",
+      "يوليو",
+      "أغسطس",
+      "سبتمبر",
       "أكتوبر",
-      "نونبر",
-      "دجنبر",
+      "نوفمبر",
+      "ديسمبر",
     ],
-    dayNames: ["إ", "ث", "أ", "خ", "ج", "س", "ح"],
     today: "اليوم",
   },
 };
 
+const WINDOW_DAYS = 14;
+
 export function DateTimePicker({ value, onChange, locale }: Props) {
   const t = labels[locale];
-  const initial = value
-    ? DateTime.fromISO(value, { zone: CASABLANCA_TZ })
-    : DateTime.now().setZone(CASABLANCA_TZ);
-  const [cursor, setCursor] = useState(initial.startOf("month"));
-
   const today = useMemo(
     () => DateTime.now().setZone(CASABLANCA_TZ).startOf("day"),
     [],
   );
-  const max = useMemo(() => today.plus({ days: 30 }), [today]);
 
-  const cells = useMemo(() => {
-    const firstDay = cursor.startOf("month");
-    // Monday-first: Luxon weekday 1=Mon, 7=Sun. Adjust to 0-based Monday-first.
-    const firstWeekday = (firstDay.weekday - 1 + 7) % 7;
-    const daysInMonth = cursor.daysInMonth!;
+  // Window start = today's index in the visible window. 0 means today is the
+  // first chip; WINDOW_DAYS means we've scrolled far enough that today is gone.
+  const [windowStart, setWindowStart] = useState(0);
 
-    const out: (DateTime | null)[] = [];
-    for (let i = 0; i < firstWeekday; i++) out.push(null);
-    for (let d = 1; d <= daysInMonth; d++) {
-      out.push(firstDay.set({ day: d }));
+  const days = useMemo(() => {
+    const out: DateTime[] = [];
+    for (let i = 0; i < WINDOW_DAYS; i++) {
+      out.push(today.plus({ days: windowStart + i }));
     }
     return out;
-  }, [cursor]);
+  }, [today, windowStart]);
+
+  // Selected date → ISO YYYY-MM-DD
+  const selectedIso = value;
+
+  const canGoPrev = windowStart > 0;
+  const canGoNext = windowStart < 30; // arbitrary cap so users don't book 6 months out
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setCursor(cursor.minus({ months: 1 }))}
-          aria-label={t.prev}
-          className="grid size-9 place-items-center rounded-full bg-white shadow-card hover:bg-zinc-50"
-        >
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <path
-              d="M13 5l-5 5 5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <div className="font-display text-lg font-semibold">
-          {t.monthNames[cursor.month - 1]} {cursor.year}
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+          {value
+            ? (() => {
+                const dt = DateTime.fromISO(value, { zone: CASABLANCA_TZ });
+                return `${t.weekdays[dt.weekday - 1]} ${dt.day} ${t.months[dt.month - 1]}`;
+              })()
+            : t.today}
         </div>
-        <button
-          type="button"
-          onClick={() => setCursor(cursor.plus({ months: 1 }))}
-          aria-label={t.next}
-          className="grid size-9 place-items-center rounded-full bg-white shadow-card hover:bg-zinc-50"
-        >
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <path
-              d="M7 5l5 5-5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setWindowStart(Math.max(0, windowStart - 7))}
+            disabled={!canGoPrev}
+            aria-label={t.prev}
+            className="grid size-8 place-items-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden
+            >
+              <path
+                d="M12 5l-5 5 5 5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => setWindowStart(windowStart + 7)}
+            disabled={!canGoNext}
+            aria-label={t.next}
+            className="grid size-8 place-items-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden
+            >
+              <path
+                d="M8 5l5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs font-medium text-[var(--color-text-muted)]">
-        {t.dayNames.map((d) => (
-          <div key={d}>{d}</div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-1" role="grid">
-        {cells.map((d, i) => {
-          if (!d) return <div key={i} aria-hidden />;
-          const isPast = d < today;
-          const isFuture = d > max;
-          const isSelected =
-            value && DateTime.fromISO(value, { zone: CASABLANCA_TZ }).equals(d);
+      <div
+        role="listbox"
+        aria-label="Date selection"
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 py-1 sm:mx-0 sm:px-0"
+      >
+        {days.map((d) => {
+          const iso = d.toISODate()!;
+          const isSelected = selectedIso === iso;
           const isToday = d.equals(today);
-
-          const disabled = isPast || isFuture;
-          const cls = `aspect-square grid place-items-center rounded-full text-sm font-semibold transition-colors ${
-            isSelected
-              ? "bg-[var(--color-primary-500)] text-white"
-              : disabled
-                ? "text-zinc-300 cursor-not-allowed"
-                : "hover:bg-[var(--color-primary-500)]/10 cursor-pointer"
-          } ${isToday && !isSelected ? "ring-2 ring-[var(--color-primary-500)]/30" : ""}`;
 
           return (
             <button
-              key={i}
+              key={iso}
               type="button"
-              disabled={disabled}
-              onClick={() => onChange(d.toISODate()!)}
-              className={cls}
-              aria-pressed={isSelected ? "true" : "false"}
-              aria-label={d.toFormat("cccc d LLLL yyyy", { locale })}
+              role="option"
+              aria-selected={isSelected}
+              onClick={() => onChange(iso)}
+              className={`flex shrink-0 flex-col items-center justify-center rounded-xl border px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
+                isSelected
+                  ? "border-transparent bg-[var(--color-primary-500)] text-white shadow-button"
+                  : isToday
+                    ? "border-[var(--color-primary-500)] bg-white text-[var(--color-text)]"
+                    : "border-zinc-200 bg-white text-[var(--color-text)] hover:border-[var(--color-primary-500)]"
+              }`}
+              style={{ minWidth: "64px" }}
             >
-              {d.day}
+              <span className="text-[10px] font-medium uppercase tracking-wider opacity-80">
+                {t.weekdays[d.weekday - 1]}
+              </span>
+              <span className="mt-0.5 text-lg font-bold leading-none">
+                {d.day}
+              </span>
+              <span className="mt-0.5 text-[10px] font-medium opacity-70">
+                {t.months[d.month - 1]}
+              </span>
             </button>
           );
         })}

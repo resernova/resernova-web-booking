@@ -1,7 +1,19 @@
 /**
- * BookingWizard — 4-step client component.
- * State machine: Service → Date/Time → Your details → Confirm.
- * URL hash tracks the current step for back-button friendliness.
+ * BookingWizard — single-page split layout (Fresha-inspired).
+ *
+ * Replaces the old 4-step state machine. All sections visible at once on
+ * desktop (sidebar with summary + main column with date/time + form).
+ * Mobile collapses to stacked sections.
+ *
+ * Preserves the existing safeguards:
+ *   - idempotency key (sessionStorage, cleared on success)
+ *   - min-time-on-page gate (3s) — handled inside ClientDetailsForm
+ *   - i18n labels (fr / en / ar)
+ *
+ * Reuses unchanged internal components:
+ *   - DateTimePicker (now a day strip)
+ *   - SlotGrid
+ *   - ClientDetailsForm
  */
 "use client";
 
@@ -12,6 +24,9 @@ import { toast } from "sonner";
 import { CreateBookingPayload } from "@/lib/validation/schemas";
 import { createBooking } from "@/server/actions/createBooking";
 import { useRouter } from "next/navigation";
+import { DateTimePicker } from "./DateTimePicker";
+import { SlotGrid } from "./SlotGrid";
+import { ClientDetailsForm } from "./ClientDetailsForm";
 
 type Staff = { id: string; name: string };
 
@@ -26,14 +41,10 @@ type Props = {
   locale?: "fr" | "en" | "ar";
 };
 
-type Step = 1 | 2 | 3 | 4;
-
 function generateIdempotencyKey(): string {
-  // Crypto-grade UUID v4 from browser
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
   }
-  // Fallback (very old browsers)
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -41,42 +52,60 @@ function generateIdempotencyKey(): string {
   });
 }
 
+function formatMAD(n: number, locale: "fr" | "en" | "ar"): string {
+  try {
+    return new Intl.NumberFormat(
+      locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA",
+      {
+        style: "currency",
+        currency: "MAD",
+        maximumFractionDigits: 0,
+      },
+    ).format(n);
+  } catch {
+    return `${n} DH`;
+  }
+}
+
 const labels = {
   fr: {
-    step1: "Service",
-    step2: "Date & heure",
-    step3: "Vos infos",
-    step4: "Confirmation",
-    next: "Continuer",
-    back: "Retour",
+    summary: "Récapitulatif",
+    dateTime: "Date & heure",
+    details: "Vos informations",
     confirm: "Confirmer la réservation",
     submitting: "Confirmation en cours...",
     successToast: "Réservation confirmée !",
     networkError: "Erreur réseau. Veuillez réessayer.",
+    totalLabel: "Total",
+    durationLabel: (m: number) => `${m} min`,
+    anyProfessional: "Tout professionnel",
+    backToSalon: "Retour au salon",
   },
   en: {
-    step1: "Service",
-    step2: "Date & time",
-    step3: "Your details",
-    step4: "Confirm",
-    next: "Continue",
-    back: "Back",
+    summary: "Summary",
+    dateTime: "Date & time",
+    details: "Your details",
     confirm: "Confirm booking",
     submitting: "Confirming...",
     successToast: "Booking confirmed!",
     networkError: "Network error. Please try again.",
+    totalLabel: "Total",
+    durationLabel: (m: number) => `${m} min`,
+    anyProfessional: "Any professional",
+    backToSalon: "Back to salon",
   },
   ar: {
-    step1: "الخدمة",
-    step2: "التاريخ والوقت",
-    step3: "بياناتك",
-    step4: "التأكيد",
-    next: "متابعة",
-    back: "رجوع",
+    summary: "الملخص",
+    dateTime: "التاريخ والوقت",
+    details: "بياناتك",
     confirm: "تأكيد الحجز",
     submitting: "جاري التأكيد...",
     successToast: "تم تأكيد الحجز!",
     networkError: "خطأ في الشبكة. حاول مرة أخرى.",
+    totalLabel: "المجموع",
+    durationLabel: (m: number) => `${m} دقيقة`,
+    anyProfessional: "أي محترف",
+    backToSalon: "العودة إلى الصالون",
   },
 };
 
@@ -87,11 +116,11 @@ export function BookingWizard({
   serviceDurationMinutes,
   servicePrice,
   staff,
+  initialStaffId,
   locale = "fr",
 }: Props) {
-  const router = useRouter();
   const t = labels[locale];
-  const [step, setStep] = useState<Step>(1);
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{
     start: string;
@@ -99,8 +128,10 @@ export function BookingWizard({
   } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState<string>("");
+  const [selectedStaffId, setSelectedStaffId] = useState<string>(
+    initialStaffId ?? "",
+  );
 
-  // Init idempotency key from sessionStorage or create
   useEffect(() => {
     let key = sessionStorage.getItem("web-booking-idem");
     if (!key) {
@@ -109,13 +140,6 @@ export function BookingWizard({
     }
     setIdempotencyKey(key);
   }, []);
-
-  // URL hash for back-button
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      history.replaceState(null, "", `#step=${step}`);
-    }
-  }, [step]);
 
   const form = useForm<CreateBookingPayload>({
     resolver: zodResolver(CreateBookingPayload),
@@ -145,9 +169,8 @@ export function BookingWizard({
           serviceId,
           slotStart: selectedSlot.start,
           slotEnd: selectedSlot.end,
-          // strip empty strings to undefined for the Zod schema
           clientEmail: values.clientEmail || undefined,
-          requestedStaffId: values.requestedStaffId || undefined,
+          requestedStaffId: selectedStaffId || values.requestedStaffId,
           specialRequest: values.specialRequest || undefined,
         },
         idempotencyKey,
@@ -163,7 +186,6 @@ export function BookingWizard({
         const code = result.error.code;
         if (code === "SLOT_TAKEN") {
           toast.error(result.error.message);
-          setStep(2); // back to date/time
           setSelectedSlot(null);
         } else if (code === "RATE_LIMITED") {
           toast.error("Trop de tentatives. Réessayez dans une minute.");
@@ -181,412 +203,154 @@ export function BookingWizard({
     }
   }
 
-  return (
-    <div className="mx-auto max-w-2xl px-4 pb-16 sm:px-6">
-      {/* Stepper */}
-      <ol
-        className="mb-8 flex items-center justify-between gap-2"
-        aria-label="Booking steps"
-      >
-        {([1, 2, 3, 4] as const).map((s) => {
-          const isCurrent = step === s;
-          const isComplete = step > s;
-          return (
-            <li key={s} className="flex flex-1 items-center gap-2">
-              <span
-                aria-current={isCurrent ? "step" : undefined}
-                className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold transition-colors ${
-                  isComplete
-                    ? "bg-[var(--color-accent-500)] text-white"
-                    : isCurrent
-                      ? "bg-[var(--color-primary-500)] text-white"
-                      : "bg-zinc-100 text-zinc-400"
-                }`}
-              >
-                {isComplete ? "✓" : s}
-              </span>
-              <span
-                className={`hidden text-xs font-medium sm:inline ${isCurrent ? "text-[var(--color-primary-500)]" : "text-[var(--color-text-muted)]"}`}
-              >
-                {t[`step${s}` as keyof typeof t]}
-              </span>
-              {s < 4 && (
-                <span aria-hidden className="h-px flex-1 bg-zinc-200" />
-              )}
-            </li>
-          );
-        })}
-      </ol>
+  const canSubmit = !!selectedSlot && form.formState.isValid && !submitting;
 
-      <div className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-card sm:p-8">
-        {step === 1 && (
-          <Step1ServiceSummary
-            serviceName={serviceName}
-            servicePrice={servicePrice}
-            serviceDurationMinutes={serviceDurationMinutes}
-            locale={locale}
-            onNext={() => setStep(2)}
-            nextLabel={t.next}
-          />
-        )}
-
-        {step === 2 && (
-          <Step2DateTime
-            slug={slug}
-            serviceId={serviceId}
-            serviceDurationMinutes={serviceDurationMinutes}
-            selectedDate={selectedDate}
-            selectedSlot={selectedSlot}
-            onDateChange={setSelectedDate}
-            onSlotChange={setSelectedSlot}
-            onBack={() => setStep(1)}
-            onNext={() => setStep(3)}
-            backLabel={t.back}
-            nextLabel={t.next}
-            locale={locale}
-          />
-        )}
-
-        {step === 3 && (
-          <Step3Details
-            form={form}
-            staff={staff}
-            onBack={() => setStep(2)}
-            onNext={() => setStep(4)}
-            backLabel={t.back}
-            nextLabel={t.next}
-            locale={locale}
-          />
-        )}
-
-        {step === 4 && (
-          <Step4Confirm
-            form={form}
-            serviceName={serviceName}
-            serviceDurationMinutes={serviceDurationMinutes}
-            servicePrice={servicePrice}
-            selectedSlot={selectedSlot}
-            selectedDate={selectedDate}
-            submitting={submitting}
-            staffList={staff}
-            onBack={() => setStep(3)}
-            onSubmit={form.handleSubmit(onSubmit)}
-            backLabel={t.back}
-            confirmLabel={t.confirm}
-            submittingLabel={t.submitting}
-            locale={locale}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ====================================================================== */
-/* STEP 1 — Service (just a confirmation; service is pre-selected by URL) */
-/* ====================================================================== */
-
-function Step1ServiceSummary({
-  serviceName,
-  servicePrice,
-  serviceDurationMinutes,
-  locale,
-  onNext,
-  nextLabel,
-}: {
-  serviceName: string;
-  servicePrice: number;
-  serviceDurationMinutes: number;
-  locale: "fr" | "en" | "ar";
-  onNext: () => void;
-  nextLabel: string;
-}) {
-  return (
-    <div>
-      <h2 className="font-display text-2xl font-semibold">{serviceName}</h2>
-      <p className="mt-2 text-[var(--color-text-muted)]">
-        {serviceDurationMinutes} min · {formatMAD(servicePrice, locale)}
-      </p>
-
-      <div className="mt-6 rounded-2xl bg-[var(--color-primary-500)]/5 p-5">
-        <p className="text-sm text-[var(--color-text-muted)]">
-          {locale === "fr" &&
-            "Étape suivante : choisissez la date et l'heure de votre rendez-vous."}
-          {locale === "en" &&
-            "Next step: choose the date and time of your appointment."}
-          {locale === "ar" && "الخطوة التالية: اختر التاريخ والوقت لموعدك."}
-        </p>
-      </div>
-
-      <div className="mt-6 flex justify-end">
-        <button
-          type="button"
-          onClick={onNext}
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {nextLabel}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M7 5l5 5-5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ====================================================================== */
-/* STEP 2 — Date & Time picker + SlotGrid                                */
-/* ====================================================================== */
-
-import { DateTimePicker } from "./DateTimePicker";
-import { SlotGrid } from "./SlotGrid";
-
-function Step2DateTime(props: {
-  slug: string;
-  serviceId: string;
-  serviceDurationMinutes: number;
-  selectedDate: string | null;
-  selectedSlot: { start: string; end: string } | null;
-  onDateChange: (d: string) => void;
-  onSlotChange: (s: { start: string; end: string } | null) => void;
-  onBack: () => void;
-  onNext: () => void;
-  backLabel: string;
-  nextLabel: string;
-  locale: "fr" | "en" | "ar";
-}) {
-  return (
-    <div>
-      <h2 className="font-display text-2xl font-semibold">
-        {props.locale === "fr" && "Date & heure"}
-        {props.locale === "en" && "Date & time"}
-        {props.locale === "ar" && "التاريخ والوقت"}
+  // Sidebar summary (sticky on desktop)
+  const Summary = (
+    <aside className="lg:sticky lg:top-6">
+      <h2 className="font-display text-lg font-semibold text-[var(--color-text)]">
+        {t.summary}
       </h2>
+      <div className="mt-4 rounded-2xl border border-[var(--color-border)] bg-white p-5">
+        <div className="flex items-start gap-3">
+          <div className="size-12 shrink-0 rounded-xl bg-gradient-to-br from-[var(--color-primary-100)] to-[var(--color-primary-500)]" />
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate font-semibold text-[var(--color-text)]">
+              {serviceName}
+            </h3>
+            <p className="text-sm text-[var(--color-text-muted)]">
+              ⏱ {t.durationLabel(serviceDurationMinutes)}
+            </p>
+          </div>
+        </div>
 
-      <div className="mt-6">
-        <DateTimePicker
-          value={props.selectedDate}
-          onChange={props.onDateChange}
-          locale={props.locale}
-        />
+        {staff.length > 0 && (
+          <div className="mt-4 border-t border-zinc-100 pt-4">
+            <label
+              htmlFor="staff-select"
+              className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]"
+            >
+              {t.anyProfessional}
+            </label>
+            <select
+              id="staff-select"
+              value={selectedStaffId}
+              onChange={(e) => setSelectedStaffId(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20"
+            >
+              <option value="">{t.anyProfessional}</option>
+              {staff.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {selectedSlot && (
+          <div className="mt-4 border-t border-zinc-100 pt-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-[var(--color-text-muted)]">
+                {t.totalLabel}
+              </span>
+              <span className="font-display text-lg font-bold text-[var(--color-text)]">
+                {formatMAD(servicePrice, locale)}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
+    </aside>
+  );
 
-      {props.selectedDate && (
-        <div className="mt-6">
-          <SlotGrid
-            slug={props.slug}
-            serviceId={props.serviceId}
-            date={props.selectedDate}
-            selectedSlot={props.selectedSlot}
-            onSlotChange={props.onSlotChange}
-            locale={props.locale}
+  // Main column — three sections, all visible
+  const Form = (
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-6 rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-card sm:p-8"
+    >
+      <section>
+        <h2 className="font-display text-lg font-semibold text-[var(--color-text)]">
+          {t.dateTime}
+        </h2>
+        <div className="mt-4">
+          <DateTimePicker
+            value={selectedDate}
+            onChange={setSelectedDate}
+            locale={locale}
           />
         </div>
-      )}
+        {selectedDate && (
+          <div className="mt-4">
+            <SlotGrid
+              slug={slug}
+              serviceId={serviceId}
+              date={selectedDate}
+              selectedSlot={selectedSlot}
+              onSlotChange={setSelectedSlot}
+              locale={locale}
+            />
+          </div>
+        )}
+      </section>
 
-      <div className="mt-8 flex items-center justify-between">
+      <section className="border-t border-zinc-100 pt-6">
+        <h2 className="font-display text-lg font-semibold text-[var(--color-text)]">
+          {t.details}
+        </h2>
+        <div className="mt-4">
+          <ClientDetailsForm form={form} staff={staff} locale={locale} />
+        </div>
+      </section>
+
+      <div className="border-t border-zinc-100 pt-6">
         <button
-          type="button"
-          onClick={props.onBack}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 font-semibold text-[var(--color-text)] hover:bg-zinc-50"
+          type="submit"
+          disabled={!canSubmit}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--color-accent-500)] px-7 py-4 font-semibold text-white shadow-button transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M13 5l-5 5 5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {props.backLabel}
+          {submitting && (
+            <svg
+              className="size-5 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="3"
+                opacity="0.25"
+              />
+              <path
+                d="M12 2a10 10 0 0110 10"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
+          {submitting ? t.submitting : t.confirm}
         </button>
-        <button
-          type="button"
-          onClick={props.onNext}
-          disabled={!props.selectedSlot}
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+        <a
+          href={`/${slug}`}
+          className="mt-3 block text-center text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
         >
-          {props.nextLabel}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M7 5l5 5-5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+          {t.backToSalon}
+        </a>
+      </div>
+    </form>
+  );
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[35%_1fr]">
+        {Summary}
+        {Form}
       </div>
     </div>
   );
-}
-
-/* ====================================================================== */
-/* STEP 3 — Your details (RHF + Zod)                                     */
-/* ====================================================================== */
-
-import { ClientDetailsForm } from "./ClientDetailsForm";
-
-function Step3Details(props: {
-  form: ReturnType<typeof useForm<CreateBookingPayload>>;
-  staff: Staff[];
-  onBack: () => void;
-  onNext: () => void;
-  backLabel: string;
-  nextLabel: string;
-  locale: "fr" | "en" | "ar";
-}) {
-  const { form, onNext, onBack, staff, backLabel, nextLabel, locale } = props;
-
-  return (
-    <div>
-      <h2 className="font-display text-2xl font-semibold">
-        {locale === "fr" && "Vos informations"}
-        {locale === "en" && "Your details"}
-        {locale === "ar" && "بياناتك"}
-      </h2>
-
-      <ClientDetailsForm form={form} staff={staff} locale={locale} />
-
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 font-semibold text-[var(--color-text)] hover:bg-zinc-50"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M13 5l-5 5 5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {backLabel}
-        </button>
-        <button
-          type="button"
-          onClick={async () => {
-            const ok = await form.trigger();
-            if (ok) onNext();
-          }}
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {nextLabel}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M7 5l5 5-5 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ====================================================================== */
-/* STEP 4 — Confirm + submit                                             */
-/* ====================================================================== */
-
-import { ConfirmStep } from "./ConfirmStep";
-
-function Step4Confirm(props: {
-  form: ReturnType<typeof useForm<CreateBookingPayload>>;
-  serviceName: string;
-  serviceDurationMinutes: number;
-  servicePrice: number;
-  selectedSlot: { start: string; end: string } | null;
-  selectedDate: string | null;
-  submitting: boolean;
-  staffList: Staff[];
-  onBack: () => void;
-  onSubmit: () => void;
-  backLabel: string;
-  confirmLabel: string;
-  submittingLabel: string;
-  locale: "fr" | "en" | "ar";
-}) {
-  return (
-    <div>
-      <h2 className="font-display text-2xl font-semibold">
-        {props.locale === "fr" && "Récapitulatif"}
-        {props.locale === "en" && "Summary"}
-        {props.locale === "ar" && "الملخص"}
-      </h2>
-      <ConfirmStep
-        form={props.form}
-        serviceName={props.serviceName}
-        serviceDurationMinutes={props.serviceDurationMinutes}
-        servicePrice={props.servicePrice}
-        selectedSlot={props.selectedSlot}
-        selectedDate={props.selectedDate}
-        staffList={props.staffList}
-        submitting={props.submitting}
-        onBack={props.onBack}
-        onSubmit={props.onSubmit}
-        backLabel={props.backLabel}
-        confirmLabel={props.confirmLabel}
-        submittingLabel={props.submittingLabel}
-        locale={props.locale}
-      />
-    </div>
-  );
-}
-
-function formatMAD(n: number, locale: "fr" | "en" | "ar"): string {
-  try {
-    return new Intl.NumberFormat(
-      locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA",
-      {
-        style: "currency",
-        currency: "MAD",
-        maximumFractionDigits: 0,
-      },
-    ).format(n);
-  } catch {
-    return `${n} DH`;
-  }
 }
