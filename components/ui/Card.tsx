@@ -12,8 +12,8 @@ type CardProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 const variantClasses: Record<Variant, string> = {
-  base: "bg-card border border-border rounded-md shadow-xs",
-  media: "bg-card border border-border rounded-md overflow-hidden shadow-xs",
+  base: "bg-card border border-border rounded-md shadow-sm",
+  media: "bg-card border border-border rounded-md overflow-hidden shadow-sm",
   elevated: "bg-card border border-border rounded-md shadow-md",
 };
 

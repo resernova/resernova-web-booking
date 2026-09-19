@@ -29,13 +29,14 @@ type ButtonProps = ButtonOwnProps &
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-accent text-ink-inverse hover:bg-accent-dim hover:-translate-y-px",
+    "bg-accent text-ink-inverse shadow-button hover:bg-accent-dim hover:-translate-y-px hover:shadow-md",
   secondary:
     "bg-canvas text-ink border border-border hover:bg-surface hover:border-ink-muted",
   ghost: "bg-transparent text-ink hover:bg-surface",
   success:
-    "bg-success text-ink-inverse hover:bg-success/90 hover:-translate-y-px",
-  danger: "bg-error text-ink-inverse hover:bg-error/90 hover:-translate-y-px",
+    "bg-success text-ink-inverse shadow-button hover:bg-success/90 hover:-translate-y-px hover:shadow-md",
+  danger:
+    "bg-error text-ink-inverse shadow-button hover:bg-error/90 hover:-translate-y-px hover:shadow-md",
 };
 
 const sizeClasses: Record<Size, string> = {

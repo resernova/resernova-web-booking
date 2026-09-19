@@ -36,118 +36,154 @@ type InputBaseProps = {
 type InputProps = InputBaseProps &
   Omit<React.InputHTMLAttributes<HTMLInputElement>, keyof InputBaseProps> & {
     multiline?: false;
+    as?: "input";
   };
 
 type TextareaProps = InputBaseProps & {
   multiline: true;
   rows?: number;
+  as?: "textarea";
 } & Omit<
     React.TextareaHTMLAttributes<HTMLTextAreaElement>,
     keyof InputBaseProps | "multiline" | "rows"
   >;
 
-export const Input = forwardRef<HTMLInputElement, InputProps | TextareaProps>(
-  (props, ref) => {
-    const {
-      locale = "fr",
-      label,
-      hint,
-      error,
-      required,
-      className,
-      id,
-      ...rest
-    } = props;
-    const ph = placeholders[locale];
+type SelectProps = InputBaseProps & {
+  multiline?: false;
+  as: "select";
+  children?: React.ReactNode;
+} & Omit<
+    React.SelectHTMLAttributes<HTMLSelectElement>,
+    keyof InputBaseProps | "multiline" | "children"
+  >;
 
-    const auto = label
-      ? `input-${label.replace(/\W+/g, "-").toLowerCase()}-${id ?? ""}`
-      : id;
+export const Input = forwardRef<
+  HTMLInputElement,
+  InputProps | TextareaProps | SelectProps
+>((props, ref) => {
+  const {
+    locale = "fr",
+    label,
+    hint,
+    error,
+    required,
+    className,
+    id,
+    ...rest
+  } = props;
+  const ph = placeholders[locale];
 
-    const baseFieldClasses = [
-      "block w-full rounded-md border bg-canvas px-3 py-2 text-base",
-      "placeholder:text-ink-soft",
-      "focus:outline-none focus:ring-2 focus:ring-accent/20",
-      "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface",
-      error
-        ? "border-error focus:border-error focus:ring-error/20"
-        : "border-border focus:border-accent",
-    ].join(" ");
+  const auto = label
+    ? `input-${label.replace(/\W+/g, "-").toLowerCase()}-${id ?? ""}`
+    : id;
 
-    const labelEl = label ? (
-      <label htmlFor={auto} className="mb-1 block text-sm font-medium text-ink">
-        {label}
-        {required && (
-          <span aria-hidden className="ml-0.5 text-error">
-            *
-          </span>
-        )}
-      </label>
+  const baseFieldClasses = [
+    "block w-full rounded-md border bg-canvas px-3 py-2 text-base text-ink",
+    "placeholder:text-ink-soft",
+    "transition-base duration-base ease-standard",
+    "focus:outline-none focus:ring-2 focus:ring-accent/20",
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface",
+    error
+      ? "border-error focus:border-error focus:ring-error/20"
+      : "border-border focus:border-accent",
+  ].join(" ");
+
+  const labelEl = label ? (
+    <label htmlFor={auto} className="mb-1 block text-sm font-medium text-ink">
+      {label}
+      {required && (
+        <span aria-hidden className="ml-0.5 text-error">
+          *
+        </span>
+      )}
+    </label>
+  ) : null;
+
+  const hintEl =
+    hint && !error ? (
+      <p className="mt-1 text-caption text-ink-muted">{hint}</p>
     ) : null;
 
-    const hintEl =
-      hint && !error ? (
-        <p className="mt-1 text-caption text-ink-muted">{hint}</p>
-      ) : null;
+  const errorEl = error ? (
+    <p role="alert" className="mt-1 text-caption text-error">
+      {error}
+    </p>
+  ) : null;
 
-    const errorEl = error ? (
-      <p role="alert" className="mt-1 text-caption text-error">
-        {error}
-      </p>
-    ) : null;
+  const describedBy = error
+    ? `${auto}-error`
+    : hint
+      ? `${auto}-hint`
+      : undefined;
 
-    const placeholder =
-      (rest.placeholder as string | undefined) ??
-      (props.multiline
-        ? ph.name
-        : (rest as InputProps).type === "email"
-          ? ph.email
-          : (rest as InputProps).type === "tel"
-            ? ph.phone
-            : ph.name);
-
-    if (props.multiline) {
-      const { rows = 4, ...restTa } = rest as TextareaProps;
-      return (
-        <div className={className}>
-          {labelEl}
-          <textarea
-            id={auto}
-            rows={rows}
-            placeholder={placeholder}
-            aria-invalid={!!error}
-            aria-describedby={
-              error ? `${auto}-error` : hint ? `${auto}-hint` : undefined
-            }
-            required={required}
-            className={baseFieldClasses}
-            {...restTa}
-          />
-          {errorEl}
-          {hintEl}
-        </div>
-      );
-    }
-
+  if ((props as SelectProps).as === "select") {
+    const { children, ...restSel } = rest as SelectProps;
     return (
       <div className={className}>
         {labelEl}
-        <input
-          ref={ref}
+        <select
           id={auto}
-          placeholder={placeholder}
+          ref={ref as React.Ref<HTMLSelectElement>}
           aria-invalid={!!error}
-          aria-describedby={
-            error ? `${auto}-error` : hint ? `${auto}-hint` : undefined
-          }
+          aria-describedby={describedBy}
           required={required}
           className={baseFieldClasses}
-          {...(rest as InputProps)}
+          {...restSel}
+        >
+          {children}
+        </select>
+        {errorEl}
+        {hintEl}
+      </div>
+    );
+  }
+
+  if (props.multiline) {
+    const { rows = 4, ...restTa } = rest as TextareaProps;
+    const placeholder = (restTa.placeholder as string | undefined) ?? ph.name;
+    return (
+      <div className={className}>
+        {labelEl}
+        <textarea
+          id={auto}
+          rows={rows}
+          placeholder={placeholder}
+          aria-invalid={!!error}
+          aria-describedby={describedBy}
+          required={required}
+          className={baseFieldClasses}
+          {...restTa}
         />
         {errorEl}
         {hintEl}
       </div>
     );
-  },
-);
+  }
+
+  const placeholder =
+    (rest as InputProps).placeholder ??
+    ((rest as InputProps).type === "email"
+      ? ph.email
+      : (rest as InputProps).type === "tel"
+        ? ph.phone
+        : ph.name);
+
+  return (
+    <div className={className}>
+      {labelEl}
+      <input
+        ref={ref}
+        id={auto}
+        placeholder={placeholder}
+        aria-invalid={!!error}
+        aria-describedby={describedBy}
+        required={required}
+        className={baseFieldClasses}
+        {...(rest as InputProps)}
+      />
+      {errorEl}
+      {hintEl}
+    </div>
+  );
+});
 Input.displayName = "Input";
