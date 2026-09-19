@@ -1,6 +1,7 @@
 /**
  * OpenHoursBadge — "Open today until 19:00" / "Closed today" / "Opens at 10:00".
  * Server component; takes the canonical `opening_hours` jsonb + location timezone.
+ * Token-aligned with the Linear-style editorial language.
  */
 import { openToday } from "@/lib/utils/time";
 
@@ -55,8 +56,8 @@ export function OpenHoursBadge({
 
   if (status.isOpen) {
     return (
-      <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent-500)]/10 px-4 py-2 text-sm font-medium text-[var(--color-accent-600)]">
-        <span className="grid size-2 place-items-center rounded-full bg-[var(--color-accent-500)] shadow-[0_0_0_4px_rgba(37,211,102,0.2)]" />
+      <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-4 py-2 text-body-sm font-medium text-accent">
+        <span className="grid size-2 place-items-center rounded-full bg-accent ring-4 ring-accent/20" />
         {t.open} <strong className="font-semibold">{status.closesAt}</strong>
       </div>
     );
@@ -64,16 +65,16 @@ export function OpenHoursBadge({
 
   if (status.opensAt) {
     return (
-      <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
-        <span className="grid size-2 place-items-center rounded-full bg-amber-500" />
+      <div className="inline-flex items-center gap-2 rounded-full bg-warning/10 px-4 py-2 text-body-sm font-medium text-warning">
+        <span className="grid size-2 place-items-center rounded-full bg-warning" />
         {t.opensAt} <strong className="font-semibold">{status.opensAt}</strong>
       </div>
     );
   }
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700">
-      <span className="grid size-2 place-items-center rounded-full bg-zinc-400" />
+    <div className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-body-sm font-medium text-ink-muted">
+      <span className="grid size-2 place-items-center rounded-full bg-ink-soft" />
       {t.closed}
     </div>
   );

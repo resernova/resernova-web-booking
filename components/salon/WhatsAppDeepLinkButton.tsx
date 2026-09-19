@@ -1,6 +1,7 @@
 /**
  * WhatsAppDeepLinkButton — wa.me deep link to the salon's WhatsApp number.
  * Hidden when no whatsapp_display_phone is set.
+ * Token-aligned with the Linear-style editorial language.
  */
 type Props = {
   phone: string | null | undefined;
@@ -14,7 +15,7 @@ const labels = {
   fr: "Nous écrire sur WhatsApp",
   en: "Message us on WhatsApp",
   ar: "راسلنا على واتساب",
-};
+} as const;
 
 export function WhatsAppDeepLinkButton({
   phone,
@@ -40,7 +41,7 @@ export function WhatsAppDeepLinkButton({
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent-500)] px-5 py-2.5 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
+      className="inline-flex items-center gap-2 rounded-md bg-success px-5 py-2.5 text-body-sm font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:-translate-y-px"
     >
       <svg
         width="20"

@@ -1,5 +1,5 @@
 /**
- * ServiceCard — flat list row (Fresha-inspired).
+ * ServiceCard — flat list row (Fresha-inspired), token-aligned.
  *
  * Layout: 80×80 thumbnail | name + duration | price + inline "Réserver" link
  * No hover-lift. Hover = inline link color change only.
@@ -20,17 +20,14 @@ type Props = {
 const labels = {
   fr: {
     duration: (m: number) => `${m} min`,
-    price: (n: number) => `${n} DH`,
     cta: "Réserver",
   },
   en: {
     duration: (m: number) => `${m} min`,
-    price: (n: number) => `${n} DH`,
     cta: "Book",
   },
   ar: {
     duration: (m: number) => `${m} دقيقة`,
-    price: (n: number) => `${n} درهم`,
     cta: "احجز",
   },
 };
@@ -65,9 +62,9 @@ export function ServiceCard({
   return (
     <Link
       href={`/${slug}/book/${serviceId}`}
-      className="group flex items-center gap-4 rounded-2xl border border-[var(--color-border)] bg-white p-3 transition-colors hover:bg-zinc-50 sm:p-4"
+      className="group flex items-center gap-4 rounded-md border border-border bg-card p-3 transition-base duration-base ease-standard hover:border-ink-muted hover:bg-surface sm:p-4"
     >
-      <div className="size-20 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-[var(--color-primary-100)] to-[var(--color-primary-500)] sm:size-24">
+      <div className="size-20 shrink-0 overflow-hidden rounded-md bg-accent-soft sm:size-24">
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -77,26 +74,26 @@ export function ServiceCard({
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-white">
+          <div className="flex h-full w-full items-center justify-center font-display text-h2 font-medium text-accent">
             {initial}
           </div>
         )}
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="truncate font-semibold text-[var(--color-text)]">
+        <h3 className="truncate font-display text-body font-medium text-ink">
           {name}
         </h3>
-        <p className="mt-0.5 text-sm text-[var(--color-text-muted)]">
+        <p className="mt-0.5 font-mono text-caption text-ink-muted">
           ⏱ {t.duration(durationMinutes)}
         </p>
       </div>
 
       <div className="flex flex-shrink-0 flex-col items-end">
-        <span className="font-display text-base font-bold text-[var(--color-text)]">
+        <span className="font-display text-body font-medium text-ink">
           {formatMAD(price, locale)}
         </span>
-        <span className="mt-0.5 text-sm font-semibold text-[var(--color-primary-500)] transition-colors group-hover:text-[var(--color-primary-600)]">
+        <span className="mt-0.5 text-body-sm font-medium text-accent transition-base duration-base ease-standard group-hover:text-accent-dim">
           {t.cta} →
         </span>
       </div>
