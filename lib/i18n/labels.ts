@@ -32,6 +32,7 @@ export const manageLabels = {
       reschedule: "Modifier le créneau",
       cancel: "Annuler la réservation",
     },
+    invalidTokenLabel: "Lien invalide",
     invalidTokenHeading: "Lien invalide ou expiré",
     invalidTokenBody:
       "Ce lien de gestion n'est plus valide. Si vous souhaitez modifier ou annuler votre réservation, contactez directement le salon.",
@@ -48,6 +49,8 @@ export const manageLabels = {
     cancelSuccess: "Réservation annulée.",
     newTokenNotice:
       "Votre ancien lien a été désactivé. Voici votre nouveau lien de gestion :",
+    submitting: "En cours...",
+    legalLink: "Mentions légales & confidentialité",
     copyLink: "Copier le lien",
     linkCopied: "Lien copié ✓",
     backToSalon: "Retour au salon",
@@ -75,6 +78,7 @@ export const manageLabels = {
       reschedule: "Reschedule",
       cancel: "Cancel booking",
     },
+    invalidTokenLabel: "Invalid link",
     invalidTokenHeading: "Invalid or expired link",
     invalidTokenBody:
       "This management link is no longer valid. To modify or cancel your booking, contact the salon directly.",
@@ -91,6 +95,8 @@ export const manageLabels = {
     cancelSuccess: "Booking canceled.",
     newTokenNotice:
       "Your previous link has been disabled. Here is your new management link:",
+    submitting: "Loading...",
+    legalLink: "Legal & privacy",
     copyLink: "Copy link",
     linkCopied: "Link copied ✓",
     backToSalon: "Back to salon",
@@ -118,6 +124,7 @@ export const manageLabels = {
       reschedule: "تعديل الموعد",
       cancel: "إلغاء الحجز",
     },
+    invalidTokenLabel: "رابط غير صالح",
     invalidTokenHeading: "رابط غير صالح أو منتهي الصلاحية",
     invalidTokenBody:
       "لم يعد رابط الإدارة هذا صالحًا. لتعديل أو إلغاء حجزكم، يرجى التواصل مع الصالون مباشرة.",
@@ -133,6 +140,8 @@ export const manageLabels = {
     cancelSubmit: "إلغاء الحجز",
     cancelSuccess: "تم إلغاء الحجز.",
     newTokenNotice: "تم تعطيل الرابط السابق. إليكم رابط الإدارة الجديد:",
+    submitting: "جارٍ التحميل...",
+    legalLink: "الشروط وسياسة الخصوصية",
     copyLink: "نسخ الرابط",
     linkCopied: "✓ تم النسخ",
     backToSalon: "العودة إلى الصالون",

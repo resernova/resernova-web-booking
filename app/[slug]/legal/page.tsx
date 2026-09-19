@@ -5,6 +5,8 @@
 import { notFound } from "next/navigation";
 import { getSalonBySlug } from "@/server/queries/getSalonBySlug";
 import { resolveLocale, type Locale } from "@/lib/i18n/config";
+import { Container } from "@/components/ui/Container";
+import { Card } from "@/components/ui/Card";
 import type { Metadata } from "next";
 
 type RouteParams = { slug: string };
@@ -42,7 +44,7 @@ export default async function LegalPage({
 
   return (
     <main className="bg-canvas text-ink">
-      <header className="mx-auto max-w-3xl border-b border-border px-4 py-16 sm:px-6">
+      <Container size="md" className="border-b border-border py-16">
         <p className="font-mono text-eyebrow uppercase tracking-wider text-accent">
           {t.eyebrow}
         </p>
@@ -50,9 +52,9 @@ export default async function LegalPage({
           {t.heading}
         </h1>
         <p className="mt-3 text-body-lg text-ink-muted">{salon.businessName}</p>
-      </header>
+      </Container>
 
-      <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <Container size="md" className="py-16">
         <Section eyebrow={t.s1Eyebrow} heading={t.s1Title}>
           <p>
             {t.s1Body1}{" "}
@@ -145,7 +147,7 @@ export default async function LegalPage({
             day: "numeric",
           })}
         </p>
-      </article>
+      </Container>
     </main>
   );
 }

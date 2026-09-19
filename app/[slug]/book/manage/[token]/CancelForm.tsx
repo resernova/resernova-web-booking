@@ -15,15 +15,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cancelBooking } from "@/server/actions/cancelBooking";
+import type { Locale } from "@/lib/i18n/config";
 import type { ManageLabels } from "@/lib/i18n/labels";
 
 type Props = {
   manageToken: string;
   labels: ManageLabels;
   slug: string;
+  locale: Locale;
 };
 
-export function CancelForm({ manageToken, labels, slug }: Props) {
+export function CancelForm({ manageToken, labels, slug, locale }: Props) {
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [newToken, setNewToken] = useState<string | null>(null);
@@ -98,8 +100,9 @@ export function CancelForm({ manageToken, labels, slug }: Props) {
             fullWidth
             disabled={submitting}
             loading={submitting}
+            locale={locale}
           >
-            {labels.cancelSubmit}
+            {submitting ? labels.submitting : labels.cancelSubmit}
           </Button>
         </form>
       ) : (

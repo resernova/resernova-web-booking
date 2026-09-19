@@ -122,8 +122,9 @@ export function RescheduleForm({
             fullWidth
             disabled={!selectedSlot || submitting}
             loading={submitting}
+            locale={locale}
           >
-            {labels.rescheduleSubmit}
+            {submitting ? labels.submitting : labels.rescheduleSubmit}
           </Button>
         </form>
       ) : (

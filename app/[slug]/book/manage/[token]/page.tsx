@@ -11,6 +11,8 @@ import { DateTime } from "luxon";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { KeyValueRow } from "@/components/ui/KeyValueRow";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { CASABLANCA_TZ } from "@/lib/utils/time";
 import { getSalonBySlug } from "@/server/queries/getSalonBySlug";
@@ -113,23 +115,23 @@ export default async function ManagePage({
 
   if (!booking) {
     return (
-      <main className="mx-auto max-w-xl bg-canvas px-4 py-24 text-center text-ink sm:px-6">
-        <p className="font-mono text-eyebrow uppercase tracking-wider text-error">
-          {labels.statusCanceled === "Annulé"
-            ? "Lien invalide"
-            : "Invalid link"}
-        </p>
-        <h1 className="mt-3 font-display text-h2 font-medium leading-tight text-ink md:text-h1">
-          {labels.invalidTokenHeading}
-        </h1>
-        <p className="mt-4 text-body-lg leading-relaxed text-ink-muted">
-          {labels.invalidTokenBody}
-        </p>
-        <Link href={`/${slug}`} className="mt-8 inline-flex">
-          <Button variant="primary" size="md">
-            {labels.browserBack}
-          </Button>
-        </Link>
+      <main className="bg-canvas text-ink">
+        <Container size="sm" className="py-24 text-center">
+          <p className="font-mono text-eyebrow uppercase tracking-wider text-error">
+            {labels.invalidTokenLabel}
+          </p>
+          <h1 className="mt-3 font-display text-h2 font-medium leading-tight text-ink md:text-h1">
+            {labels.invalidTokenHeading}
+          </h1>
+          <p className="mt-4 text-body-lg leading-relaxed text-ink-muted">
+            {labels.invalidTokenBody}
+          </p>
+          <Link href={`/${slug}`} className="mt-8 inline-flex">
+            <Button variant="primary" size="md">
+              {labels.browserBack}
+            </Button>
+          </Link>
+        </Container>
       </main>
     );
   }
@@ -195,13 +197,13 @@ export default async function ManagePage({
           {labels.currentBookingHeading}
         </h2>
         <dl className="mt-4 space-y-3 text-body-sm">
-          <Row label={labels.service} value={booking.serviceName} />
-          <Row label={labels.dateTime} value={dateDisplay} />
-          <Row
+          <KeyValueRow label={labels.service} value={booking.serviceName} />
+          <KeyValueRow label={labels.dateTime} value={dateDisplay} />
+          <KeyValueRow
             label={labels.duration}
             value={`${booking.serviceDurationMinutes} min`}
           />
-          <Row
+          <KeyValueRow
             label={labels.status}
             value={statusLabel(booking.status, locale, labels)}
           />
@@ -238,7 +240,12 @@ export default async function ManagePage({
                 id: "cancel",
                 label: labels.tabs.cancel,
                 render: () => (
-                  <CancelForm manageToken={token} labels={labels} slug={slug} />
+                  <CancelForm
+                    manageToken={token}
+                    labels={labels}
+                    slug={slug}
+                    locale={locale}
+                  />
                 ),
               },
             ]}
@@ -254,23 +261,10 @@ export default async function ManagePage({
           href={`/${slug}/legal`}
           className="text-ink underline decoration-border underline-offset-2 transition-base duration-base ease-standard hover:decoration-accent hover:text-accent"
         >
-          {labels.browserBack === "Back to home"
-            ? "Legal & privacy"
-            : labels.browserBack === "العودة إلى الصفحة الرئيسية"
-              ? "الشروط وسياسة الخصوصية"
-              : "Mentions légales & confidentialité"}
+          {labels.legalLink}
         </Link>
       </p>
     </main>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-4">
-      <dt className="text-ink-muted">{label}</dt>
-      <dd className="text-right font-medium text-ink">{value}</dd>
-    </div>
   );
 }
 
