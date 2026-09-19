@@ -129,40 +129,66 @@ function Gallery({ images }: { images: string[] }) {
   const rest = Math.max(0, images.length - 3);
 
   return (
-    <div className="grid grid-cols-1 gap-1 sm:grid-cols-5 sm:grid-rows-2 sm:gap-1.5 sm:aspect-[16/7]">
-      {/* Main image — full-width mobile, 3/5 width desktop, spans 2 rows */}
-      <div className="relative overflow-hidden sm:col-span-3 sm:row-span-2 sm:aspect-auto sm:h-full">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={main}
-          alt=""
-          className="h-full max-h-[60vh] w-full object-cover sm:max-h-none"
-          loading="eager"
-          fetchPriority="high"
-        />
+    <>
+      {/* Mobile: horizontal snap-scroll of all images. */}
+      <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto sm:hidden">
+        {images.map((src, i) => (
+          <div
+            key={src + i}
+            className="relative h-64 w-full shrink-0 snap-center overflow-hidden first:pl-0 last:pr-4"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={i === 0 ? "" : `Photo ${i + 1}`}
+              className="h-full w-full object-cover"
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+            {i === images.length - 1 && images.length > 1 && (
+              <span className="absolute bottom-3 right-4 rounded-full border border-border bg-canvas/95 px-2.5 py-0.5 text-caption font-medium text-ink shadow-sm">
+                {i + 1} / {images.length}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* Thumbnails — stacked right side on desktop, hidden on mobile */}
-      {thumbs.map((src, i) => (
-        <div
-          key={src + i}
-          className="relative hidden overflow-hidden sm:col-span-2 sm:block sm:aspect-auto sm:h-full"
-        >
+      {/* Desktop: grid with main + 2 thumbs. */}
+      <div className="hidden sm:grid sm:grid-cols-5 sm:grid-rows-2 sm:gap-1.5 sm:aspect-[16/7]">
+        {/* Main image — 3/5 width, spans 2 rows */}
+        <div className="relative col-span-3 row-span-2 h-full overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={src}
+            src={main}
             alt=""
             className="h-full w-full object-cover"
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
           />
-          {i === thumbs.length - 1 && rest > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-ink/50 text-h2 font-medium text-ink-inverse">
-              +{rest}
-            </div>
-          )}
         </div>
-      ))}
-    </div>
+
+        {/* Thumbnails — stacked right side on desktop. */}
+        {thumbs.map((src, i) => (
+          <div
+            key={src + i}
+            className="relative col-span-2 h-full overflow-hidden"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+            {i === thumbs.length - 1 && rest > 0 && (
+              <div className="absolute inset-0 flex items-center justify-center bg-ink/50 text-h2 font-medium text-ink-inverse">
+                +{rest}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 

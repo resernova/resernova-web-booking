@@ -61,7 +61,9 @@ export function SalonCard({ salon, locale = "fr" }: Props) {
               <span className="text-accent">● Ouvert</span>
             ) : today.opensAt ? (
               <span className="text-warning">● Ouvre à {today.opensAt}</span>
-            ) : null}
+            ) : (
+              <span className="text-ink-muted">● Fermé</span>
+            )}
           </div>
         )}
       </Link>
