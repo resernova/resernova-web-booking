@@ -26,7 +26,9 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       Tag,
       {
         ref,
-        className: [variantClasses[variant], className ?? ""].filter(Boolean).join(" "),
+        className: [variantClasses[variant], className ?? ""]
+          .filter(Boolean)
+          .join(" "),
         ...props,
       },
       children,

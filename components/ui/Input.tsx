@@ -3,13 +3,26 @@
  * Supports text, email, tel, textarea via `multiline` prop.
  */
 import * as React from "react";
+import { forwardRef } from "react";
 
 type Locale = "fr" | "en" | "ar";
 
 const placeholders = {
-  fr: { name: "ex. Fatima Zahra Bennani", phone: "06XXXXXXXX ou +212XXXXXXXXX", email: "vous@exemple.com" },
-  en: { name: "e.g. John Smith", phone: "+1 555 123 4567", email: "you@example.com" },
-  ar: { name: "مثال: فاطمة الزهراء بناني", phone: "06XXXXXXXX أو +212XXXXXXXXX", email: "you@example.com" },
+  fr: {
+    name: "ex. Fatima Zahra Bennani",
+    phone: "06XXXXXXXX ou +212XXXXXXXXX",
+    email: "vous@exemple.com",
+  },
+  en: {
+    name: "e.g. John Smith",
+    phone: "+1 555 123 4567",
+    email: "you@example.com",
+  },
+  ar: {
+    name: "مثال: فاطمة الزهراء بناني",
+    phone: "06XXXXXXXX أو +212XXXXXXXXX",
+    email: "you@example.com",
+  },
 } as const;
 
 type InputBaseProps = {
@@ -33,10 +46,7 @@ type TextareaProps = InputBaseProps & {
     keyof InputBaseProps | "multiline" | "rows"
   >;
 
-export const Input = forwardRef<
-  HTMLInputElement,
-  InputProps | TextareaProps
->(
+export const Input = forwardRef<HTMLInputElement, InputProps | TextareaProps>(
   (props, ref) => {
     const {
       locale = "fr",
@@ -67,7 +77,11 @@ export const Input = forwardRef<
     const labelEl = label ? (
       <label htmlFor={auto} className="mb-1 block text-sm font-medium text-ink">
         {label}
-        {required && <span aria-hidden className="ml-0.5 text-error">*</span>}
+        {required && (
+          <span aria-hidden className="ml-0.5 text-error">
+            *
+          </span>
+        )}
       </label>
     ) : null;
 
@@ -84,11 +98,13 @@ export const Input = forwardRef<
 
     const placeholder =
       (rest.placeholder as string | undefined) ??
-      (rest.type === "email"
-        ? ph.email
-        : rest.type === "tel"
-          ? ph.phone
-          : ph.name);
+      (props.multiline
+        ? ph.name
+        : (rest as InputProps).type === "email"
+          ? ph.email
+          : (rest as InputProps).type === "tel"
+            ? ph.phone
+            : ph.name);
 
     if (props.multiline) {
       const { rows = 4, ...restTa } = rest as TextareaProps;

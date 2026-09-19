@@ -167,6 +167,9 @@
   }
 }
 
+/* Legacy utilities — used by HeroHeader (fallback), salon profile action row,
+ * and booking page header. Will be removed in the final cleanup commit once
+ * Tasks 4-6 are migrated to the @theme token system. */
 .gradient-hero {
   background-image: linear-gradient(
     135deg,

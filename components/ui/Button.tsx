@@ -35,8 +35,7 @@ const variantClasses: Record<Variant, string> = {
   ghost: "bg-transparent text-ink hover:bg-surface",
   success:
     "bg-success text-ink-inverse hover:bg-success/90 hover:-translate-y-px",
-  danger:
-    "bg-error text-ink-inverse hover:bg-error/90 hover:-translate-y-px",
+  danger: "bg-error text-ink-inverse hover:bg-error/90 hover:-translate-y-px",
 };
 
 const sizeClasses: Record<Size, string> = {

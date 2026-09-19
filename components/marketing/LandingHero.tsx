@@ -1,86 +1,181 @@
 /**
- * LandingHero — marketing hero for the root `/` page.
- * Brand-true deep teal gradient, bilingual tagline, salon-count badge.
+ * LandingHero — Linear-style restraint + Cal.com-style live preview.
+ *
+ * Layout:
+ *  - 7-col text (left) + 5-col embedded booking preview (right)
+ *  - No carousel. No 3-column feature grid.
+ *  - Editorial density: generous whitespace, hairline borders on cards, sharp corners.
+ *  - Bilingual hero: French headline + Tajawal Arabic poetic line beneath.
+ *  - Display weight: 500 medium (NOT bold) — Linear / Stripe signature move.
  */
-type Props = {
-  salonCount: number;
+import Link from "next/link";
+
+type Locale = "fr" | "en" | "ar";
+
+const labels = {
+  fr: {
+    eyebrow: "Réservation en ligne pour salons",
+    headline: "Vos clients réservent en 30 secondes.",
+    arabicLine: "حجز المواعيد أصبح أسهل",
+    sub: "ReserNova centralise vos rendez-vous, vos paiements et votre équipe — sur une plateforme moderne pensée pour le marché marocain.",
+    ctaPrimary: "Démarrer maintenant",
+    ctaSecondary: "Voir une démo live",
+    salonCountOne: "salon partenaire",
+    salonCountMany: "salons partenaires",
+    suffix: "au Maroc",
+    demo: {
+      eyebrow: "Aperçu live",
+      bookCta: "Réserver →",
+      dayLabels: ["L", "M", "M", "J", "V", "S", "D"],
+    },
+  },
+  en: {
+    eyebrow: "Online booking for salons",
+    headline: "Your clients book in 30 seconds.",
+    arabicLine: "Booking just got easier",
+    sub: "ReserNova centralizes your appointments, payments and team — on a modern platform built for the Moroccan market.",
+    ctaPrimary: "Get started now",
+    ctaSecondary: "See a live demo",
+    salonCountOne: "partner salon",
+    salonCountMany: "partner salons",
+    suffix: "in Morocco",
+    demo: {
+      eyebrow: "Live preview",
+      bookCta: "Book →",
+      dayLabels: ["M", "T", "W", "T", "F", "S", "S"],
+    },
+  },
+  ar: {
+    eyebrow: "حجز المواعيد للصالونات",
+    headline: "عملاؤك يحجزون في 30 ثانية.",
+    arabicLine: "حجز المواعيد أصبح أسهل",
+    sub: "ريزيرنوفا تجمع مواعيدك ومدفوعاتك وفريقك في منصة عصرية مبنية للسوق المغربي.",
+    ctaPrimary: "ابدأ الآن",
+    ctaSecondary: "عرض حي",
+    salonCountOne: "صالون شريك",
+    salonCountMany: "صالونات شريكة",
+    suffix: "في المغرب",
+    demo: {
+      eyebrow: "معاينة حية",
+      bookCta: "احجز →",
+      dayLabels: ["إ", "ث", "أ", "خ", "ج", "س", "ح"],
+    },
+  },
 };
 
-export function LandingHero({ salonCount }: Props) {
+type Props = {
+  salonCount: number;
+  locale?: Locale;
+};
+
+export function LandingHero({ salonCount, locale = "fr" }: Props) {
+  const t = labels[locale];
+  const demo = t.demo;
+
   return (
-    <header className="gradient-hero relative overflow-hidden rounded-b-[36px] pb-16 pt-14 text-white">
-      {/* Decorative orbs */}
-      <div
-        aria-hidden
-        className="absolute -left-24 -top-24 size-72 rounded-full bg-white/10 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="absolute -bottom-16 right-1/4 size-56 rounded-full bg-white/5 blur-2xl"
-      />
-
-      <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
-        {/* Wordmark */}
-        <div className="flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl bg-white/15 font-display text-lg font-bold backdrop-blur-sm">
-            R
-          </div>
-          <span className="font-display text-lg font-semibold tracking-wide">
-            ReserNova
-          </span>
-        </div>
-
-        {/* Tagline (trilingual, stacked — fr primary, EN/AR subtitles) */}
-        <h1 className="mt-10 max-w-3xl font-display text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">
-          Réservez votre prochain{" "}
-          <span className="block sm:inline">rendez-vous beauté</span>{" "}
-          <span className="block">en quelques clics.</span>
-        </h1>
-        <p className="mt-4 max-w-2xl font-display text-lg text-white/80 sm:text-xl">
-          Book your next beauty appointment in a few taps.
-          <span className="mx-2 text-white/40">·</span>
-          حجز موعدك القادم في ثوانٍ.
-        </p>
-
-        {/* CTA + salon counter */}
-        <div className="mt-10 flex flex-wrap items-center gap-4">
-          <a
-            href="#salons"
-            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-[var(--color-primary-500)] shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Trouver un salon
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M7 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
-          <a
-            href="#how"
-            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/5 px-5 py-3 font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
-          >
-            Comment ça marche
-          </a>
-        </div>
-
-        {salonCount > 0 && (
-          <p className="mt-8 text-sm text-white/70">
-            <strong className="font-semibold text-white">{salonCount}</strong>{" "}
-            {salonCount === 1 ? "salon partenaire" : "salons partenaires"}{" "}
-            disponibles
+    <section className="relative bg-canvas">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-12 lg:py-32">
+        {/* Left: 7-col text */}
+        <div className="lg:col-span-7">
+          <p className="text-eyebrow uppercase tracking-wider text-accent">
+            {t.eyebrow}
           </p>
-        )}
+          <h1 className="mt-6 font-display text-display-md font-medium leading-tight text-ink md:text-display-lg">
+            {t.headline}
+          </h1>
+          <p className="mt-3 font-arabic text-xl text-ink-muted" dir="rtl">
+            {t.arabicLine}
+          </p>
+          <p className="mt-6 max-w-xl text-body-lg leading-relaxed text-ink-muted">
+            {t.sub}
+          </p>
+
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            <Link
+              href="/salons"
+              className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 text-base font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim hover:-translate-y-px"
+            >
+              {t.ctaPrimary}
+              <span aria-hidden>→</span>
+            </Link>
+            <Link
+              href="#how"
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-canvas px-6 py-3 text-base font-medium text-ink transition-base duration-base ease-standard hover:border-ink-muted hover:bg-surface"
+            >
+              {t.ctaSecondary}
+            </Link>
+          </div>
+
+          {salonCount > 0 && (
+            <p className="mt-8 text-caption text-ink-muted">
+              <strong className="font-medium text-ink">{salonCount}</strong>{" "}
+              {salonCount === 1 ? t.salonCountOne : t.salonCountMany} {t.suffix}
+            </p>
+          )}
+        </div>
+
+        {/* Right: 5-col embedded booking preview card (Cal.com pattern) */}
+        <div className="lg:col-span-5">
+          <div className="rounded-lg border border-border bg-card p-6 shadow-md">
+            <p className="text-eyebrow uppercase tracking-wider text-ink-muted">
+              {demo.eyebrow}
+            </p>
+
+            {/* Service row */}
+            <div className="mt-4 flex items-center gap-3 rounded-md bg-surface p-3">
+              <div className="size-10 shrink-0 rounded-sm bg-accent-soft" />
+              <div className="flex-1">
+                <p className="text-body font-medium text-ink">
+                  Coupe + Brushing
+                </p>
+                <p className="text-caption text-ink-muted">30 min · 150 DH</p>
+              </div>
+            </div>
+
+            {/* Day strip */}
+            <div className="mt-4 flex gap-2">
+              {[15, 16, 17, 18, 19, 20, 21].map((d, i) => (
+                <div
+                  key={d}
+                  className={`flex h-12 shrink-0 flex-1 flex-col items-center justify-center rounded-md border text-caption ${
+                    i === 1
+                      ? "border-accent bg-accent-soft"
+                      : "border-border bg-canvas"
+                  }`}
+                >
+                  <span className="text-ink-muted">{demo.dayLabels[i]}</span>
+                  <span className="text-body font-medium text-ink">{d}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Slot pills */}
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {["10:00", "11:30", "14:00"].map((t, i) => (
+                <button
+                  type="button"
+                  key={t}
+                  className={`rounded-md border px-2 py-1.5 text-center text-body transition-base duration-base ease-standard ${
+                    i === 1
+                      ? "border-accent bg-accent text-ink-inverse"
+                      : "border-border bg-canvas text-ink hover:border-accent"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            {/* Confirm CTA */}
+            <button
+              type="button"
+              className="mt-5 w-full rounded-md bg-accent py-3 text-body font-medium text-ink-inverse transition-base duration-base ease-standard hover:bg-accent-dim"
+            >
+              {demo.bookCta}
+            </button>
+          </div>
+        </div>
       </div>
-    </header>
+    </section>
   );
 }
