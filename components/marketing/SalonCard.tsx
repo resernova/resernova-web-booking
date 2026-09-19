@@ -2,6 +2,7 @@
  * SalonCard — directory-card on the root landing page.
  * 2-col on mobile, 3-col on md+. Hero image (or seeded gradient fallback),
  * business name, address, OpenHoursBadge (if available), "Réserver" CTA.
+ * Token-aligned with the Linear-style editorial language.
  */
 import Link from "next/link";
 import { openToday } from "@/lib/utils/time";
@@ -9,14 +10,17 @@ import type { PublicSalonCard } from "@/server/queries/getAllPublicSalons";
 
 type Props = {
   salon: PublicSalonCard;
+  locale?: "fr" | "en" | "ar";
 };
 
 const labels = {
   fr: { cta: "Réserver", bookCta: "Voir le salon" },
   en: { cta: "Book", bookCta: "View salon" },
+  ar: { cta: "احجز", bookCta: "عرض الصالون" },
 };
 
-export function SalonCard({ salon }: Props) {
+export function SalonCard({ salon, locale = "fr" }: Props) {
+  const t = labels[locale];
   const today = openToday(salon.openingHours ?? null, salon.timeZone);
   const showOpenBadge = today.isOpen || today.opensAt !== undefined;
 
@@ -27,7 +31,7 @@ export function SalonCard({ salon }: Props) {
   const gradient = `linear-gradient(135deg, hsl(${seed}, 50%, 35%) 0%, hsl(${(seed + 40) % 360}, 45%, 50%) 100%)`;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-card transition-transform hover:-translate-y-0.5">
+    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-base duration-base ease-standard hover:-translate-y-px">
       {/* Hero image or gradient fallback */}
       <Link
         href={`/${salon.slug}`}
@@ -39,13 +43,13 @@ export function SalonCard({ salon }: Props) {
           <img
             src={salon.heroImageUrl}
             alt={salon.businessName}
-            className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]"
+            className="h-full w-full object-cover transition-base duration-slow ease-standard group-hover:scale-[1.03]"
             loading="lazy"
           />
         ) : (
           <div className="h-full w-full" style={{ background: gradient }}>
             <div className="flex h-full items-center justify-center">
-              <span className="font-display text-5xl font-bold text-white/90 mix-blend-overlay">
+              <span className="font-display text-5xl font-medium text-ink-inverse/90 mix-blend-overlay">
                 {salon.businessName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -53,29 +57,29 @@ export function SalonCard({ salon }: Props) {
         )}
 
         {showOpenBadge && (
-          <div className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold shadow-card backdrop-blur-sm">
+          <div className="absolute right-3 top-3 rounded-md border border-border bg-canvas/95 px-3 py-1 text-caption font-medium shadow-sm backdrop-blur-sm">
             {today.isOpen ? (
-              <span className="text-[var(--color-accent-600)]">● Ouvert</span>
+              <span className="text-accent">● Ouvert</span>
             ) : today.opensAt ? (
-              <span className="text-amber-700">● Ouvre à {today.opensAt}</span>
+              <span className="text-warning">● Ouvre à {today.opensAt}</span>
             ) : null}
           </div>
         )}
       </Link>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-display text-lg font-semibold leading-tight">
+        <h3 className="font-display text-h4 font-medium leading-tight text-ink">
           {salon.businessName}
         </h3>
 
         {salon.description && (
-          <p className="mt-1 line-clamp-2 text-sm text-[var(--color-text-muted)]">
+          <p className="mt-1 line-clamp-2 text-body-sm text-ink-muted">
             {salon.description}
           </p>
         )}
 
         {salon.address && (
-          <p className="mt-3 flex items-start gap-1.5 text-xs text-[var(--color-text-muted)]">
+          <p className="mt-3 flex items-start gap-1.5 text-caption text-ink-muted">
             <svg
               width="14"
               height="14"
@@ -106,9 +110,9 @@ export function SalonCard({ salon }: Props) {
         <div className="mt-auto pt-4">
           <Link
             href={`/${salon.slug}`}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--color-primary-500)] px-4 py-2.5 text-sm font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-body-sm font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:-translate-y-px"
           >
-            {labels.fr.cta}
+            {t.cta}
             <svg
               width="14"
               height="14"
