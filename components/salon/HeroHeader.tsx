@@ -1,17 +1,27 @@
 /**
- * HeroHeader — gallery-first hero (Fresha-inspired).
+ * HeroHeader — gallery-first hero (Fresha-inspired), token-aligned.
  *
  * Layout:
- *  - Desktop: 1 large image (60% w, 4:5) + 2 stacked thumbnails (40%) + "show all" badge
- *  - Mobile: full-width carousel with horizontal swipe
- *  - Below: H1 name, category, rating pill, open-status dot, "Get directions",
- *    inline "Book now" CTA. No orbs, no monogram, no curved bottom — flat.
+ *  - Desktop: 1 large image (3/5 width, full height) + 2 stacked thumbnails (2/5) + "+N" overlay
+ *  - Mobile: full-width carousel
+ *  - Below: category eyebrow + H1 name + status dot + "Réserver" CTA + "Voir l'adresse"
  *
- * Gallery falls back gracefully to a single hero image or gradient placeholder
- * (the existing gradient-hero class) when `galleryImages` is empty.
+ * Token usage:
+ *  - bg-canvas / text-ink / border-border / rounded-md / font-medium
+ *  - selected slot/open state uses bg-accent / text-ink-inverse
+ *  - gallery fallback reuses the .gradient-hero utility class which will
+ *    be removed in the final cleanup commit.
  */
 import Link from "next/link";
 import { openToday, type LocationAvailability } from "@/lib/utils/time";
+
+type Locale = "fr" | "en" | "ar";
+
+const labels = {
+  fr: { cta: "Réserver", directions: "Voir l'adresse" },
+  en: { cta: "Book now", directions: "Get directions" },
+  ar: { cta: "احجز الآن", directions: "عرض العنوان" },
+};
 
 type Props = {
   businessName: string;
@@ -23,6 +33,7 @@ type Props = {
   timeZone: string;
   galleryImages?: string[];
   heroImageUrl?: string | null;
+  locale?: Locale;
 };
 
 export function HeroHeader({
@@ -35,7 +46,9 @@ export function HeroHeader({
   timeZone,
   galleryImages = [],
   heroImageUrl,
+  locale = "fr",
 }: Props) {
+  const t = labels[locale];
   const images =
     galleryImages.length > 0
       ? galleryImages.slice(0, 10)
@@ -45,7 +58,7 @@ export function HeroHeader({
   const status = openToday(openingHours, timeZone);
 
   return (
-    <header className="bg-white">
+    <header className="bg-canvas">
       {/* Gallery */}
       {images.length > 0 ? (
         <Gallery images={images} />
@@ -55,31 +68,33 @@ export function HeroHeader({
 
       {/* Identity block */}
       <div className="mx-auto max-w-5xl px-4 pb-6 pt-6 sm:px-6 sm:pt-8">
-        <p className="text-sm font-medium text-[var(--color-text-muted)]">
+        <p className="font-mono text-eyebrow uppercase tracking-wider text-accent">
           {category}
         </p>
-        <h1 className="mt-1 font-display text-3xl font-bold leading-tight text-[var(--color-text)] sm:text-4xl">
+        <h1 className="mt-2 font-display text-h2 font-medium leading-tight text-ink md:text-h1">
           {businessName}
         </h1>
 
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-caption">
           {rating !== undefined && reviewCount !== undefined && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 font-medium text-zinc-900">
-              <span className="text-amber-500">★</span>
-              {rating.toFixed(1)}{" "}
-              <span className="text-zinc-500">({reviewCount})</span>
+            <span className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-2.5 py-1 font-medium text-ink">
+              <span aria-hidden className="text-warning">
+                ★
+              </span>
+              {rating.toFixed(1)}
+              <span className="text-ink-muted">({reviewCount})</span>
             </span>
           )}
 
-          <OpenStatusDot status={status} />
+          <OpenStatusDot status={status} locale={locale} />
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
             href={`/${slug}/book`}
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-3 font-semibold text-white shadow-button transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim hover:-translate-y-px"
           >
-            Réserver
+            {t.cta}
             <svg
               width="18"
               height="18"
@@ -98,9 +113,9 @@ export function HeroHeader({
           </Link>
           <a
             href="#address"
-            className="text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+            className="text-body-sm font-medium text-ink-muted transition-base duration-base ease-standard hover:text-ink"
           >
-            Voir l&apos;adresse
+            {t.directions}
           </a>
         </div>
       </div>
@@ -141,7 +156,7 @@ function Gallery({ images }: { images: string[] }) {
             loading="lazy"
           />
           {i === thumbs.length - 1 && rest > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-2xl font-semibold text-white">
+            <div className="absolute inset-0 flex items-center justify-center bg-ink/50 text-h2 font-medium text-ink-inverse">
               +{rest}
             </div>
           )}
@@ -153,13 +168,16 @@ function Gallery({ images }: { images: string[] }) {
 
 function GradientFallback({ businessName }: { businessName: string }) {
   return (
+    // .gradient-hero is legacy — will be removed in the final cleanup commit.
+    // Until then it provides the seeded teal gradient as a fallback when no
+    // gallery image exists.
     <div className="gradient-hero relative h-48 overflow-hidden sm:h-64">
       <div
         aria-hidden
-        className="absolute -top-20 -right-20 size-64 rounded-full bg-white/10 blur-3xl"
+        className="absolute -top-20 -right-20 size-64 rounded-full bg-canvas/10 blur-3xl"
       />
       <div className="relative flex h-full items-end px-4 pb-6 sm:px-6">
-        <span className="font-display text-2xl font-bold text-white drop-shadow-sm sm:text-3xl">
+        <span className="font-display text-h2 font-medium text-ink-inverse drop-shadow-sm md:text-h1">
           {businessName}
         </span>
       </div>
@@ -167,39 +185,60 @@ function GradientFallback({ businessName }: { businessName: string }) {
   );
 }
 
-function OpenStatusDot({ status }: { status: ReturnType<typeof openToday> }) {
-  const labels = {
-    open: "Ouvert",
-    closes_at: "Ferme à",
-    closed: "Fermé",
-    not_yet_open: "Ouvre à",
-  };
+function OpenStatusDot({
+  status,
+  locale,
+}: {
+  status: ReturnType<typeof openToday>;
+  locale: Locale;
+}) {
+  const labelsByLocale = {
+    fr: {
+      open: "Ouvert",
+      closesAt: "ferme à",
+      opensAt: "Ouvre à",
+      closed: "Fermé",
+    },
+    en: {
+      open: "Open",
+      closesAt: "closes at",
+      opensAt: "Opens at",
+      closed: "Closed",
+    },
+    ar: {
+      open: "مفتوح",
+      closesAt: "يُغلق في",
+      opensAt: "يفتح في",
+      closed: "مغلق",
+    },
+  } as const;
+  const l = labelsByLocale[locale];
 
   let text: string;
   let cls: string;
   if (status.isOpen && status.closesAt) {
-    text = `${labels.open} · ferme à ${status.closesAt}`;
-    cls = "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
+    text = `${l.open} · ${l.closesAt} ${status.closesAt}`;
+    cls = "bg-accent-soft text-accent ring-1 ring-accent/30";
   } else if (status.opensAt) {
-    text = `${labels.not_yet_open} ${status.opensAt}`;
-    cls = "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
+    text = `${l.opensAt} ${status.opensAt}`;
+    cls = "bg-warning/10 text-warning ring-1 ring-warning/30";
   } else {
-    text = labels.closed;
-    cls = "bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200";
+    text = l.closed;
+    cls = "bg-surface text-ink-muted ring-1 ring-border";
   }
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${cls}`}
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-caption font-medium ${cls}`}
     >
       <span
         aria-hidden
         className={`size-2 rounded-full ${
           status.isOpen
-            ? "bg-emerald-500"
+            ? "bg-success"
             : status.opensAt
-              ? "bg-amber-500"
-              : "bg-zinc-400"
+              ? "bg-warning"
+              : "bg-ink-soft"
         }`}
       />
       {text}
