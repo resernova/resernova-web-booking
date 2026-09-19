@@ -9,7 +9,6 @@
  *   5. TrustStrip          — 6 muted salon logos (text wordmarks for MVP)
  *   6. LandingFooter       — 4-column sparse
  *
- * No `.glass`, no `.gradient-hero`, no `rounded-full` for CTAs.
  * Display weight is `font-medium` (500), NEVER `font-bold`.
  * All colors come from the `@theme` tokens defined in `app/globals.css`.
  */

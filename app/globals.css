@@ -167,26 +167,6 @@
   }
 }
 
-/* Legacy utilities — used by HeroHeader (fallback), salon profile action row,
- * and booking page header. Will be removed in the final cleanup commit once
- * Tasks 4-6 are migrated to the @theme token system. */
-.gradient-hero {
-  background-image: linear-gradient(
-    135deg,
-    #1c6b6d 0%,
-    #2a9d8f 50%,
-    #3abda2 100%
-  );
-}
-
-.glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: var(--shadow-sm);
-}
-
 [dir="rtl"] {
   text-align: right;
 }

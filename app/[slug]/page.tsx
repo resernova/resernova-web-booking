@@ -12,7 +12,6 @@
  * Token-aligned with the Linear-style editorial language:
  *   - bg-canvas / text-ink / border-border / rounded-lg / font-medium
  *   - accent reserved for CTAs and active state
- *   - NO .glass, NO var(--color-primary-500), NO rounded-full for cards
  */
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";

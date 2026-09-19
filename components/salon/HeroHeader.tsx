@@ -9,8 +9,8 @@
  * Token usage:
  *  - bg-canvas / text-ink / border-border / rounded-md / font-medium
  *  - selected slot/open state uses bg-accent / text-ink-inverse
- *  - gallery fallback reuses the .gradient-hero utility class which will
- *    be removed in the final cleanup commit.
+ *  - gallery fallback uses an inline bg-accent gradient (no legacy
+ *    utility class).
  */
 import Link from "next/link";
 import { openToday, type LocationAvailability } from "@/lib/utils/time";
@@ -168,10 +168,13 @@ function Gallery({ images }: { images: string[] }) {
 
 function GradientFallback({ businessName }: { businessName: string }) {
   return (
-    // .gradient-hero is legacy — will be removed in the final cleanup commit.
-    // Until then it provides the seeded teal gradient as a fallback when no
-    // gallery image exists.
-    <div className="gradient-hero relative h-48 overflow-hidden sm:h-64">
+    <div
+      className="relative h-48 overflow-hidden sm:h-64"
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, #0F766E 0%, #14B8A6 50%, #5EEAD4 100%)",
+      }}
+    >
       <div
         aria-hidden
         className="absolute -top-20 -right-20 size-64 rounded-full bg-canvas/10 blur-3xl"
