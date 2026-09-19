@@ -24,6 +24,8 @@ const labels = {
     loading: "Chargement des créneaux...",
     empty: "Aucun créneau disponible ce jour",
     try: "Essayez une autre date",
+    error: "Impossible de charger les créneaux.",
+    errorHint: "Vérifiez votre connexion puis réessayez.",
     remaining: (n: number) =>
       `${n} place${n > 1 ? "s" : ""} restante${n > 1 ? "s" : ""}`,
   },
@@ -31,12 +33,16 @@ const labels = {
     loading: "Loading slots...",
     empty: "No slots available on this day",
     try: "Try another date",
+    error: "Could not load available slots.",
+    errorHint: "Check your connection and try again.",
     remaining: (n: number) => `${n} spot${n > 1 ? "s" : ""} left`,
   },
   ar: {
     loading: "جاري تحميل المواعيد...",
     empty: "لا توجد مواعيد متاحة في هذا اليوم",
     try: "جرب تاريخا آخر",
+    error: "تعذر تحميل المواعيد.",
+    errorHint: "تحقق من الاتصال وحاول مرة أخرى.",
     remaining: (n: number) => `${n} مكان${n > 1 ? "" : ""} متبقي`,
   },
 };
@@ -108,10 +114,19 @@ export function SlotGrid({
     );
   }
 
-  if (error || !slots || slots.length === 0) {
+  if (error) {
+    return (
+      <div className="rounded-lg border border-error/40 bg-error/5 p-6 text-center">
+        <p className="font-medium text-error">{t.error}</p>
+        <p className="mt-1 text-caption text-ink-muted">{t.errorHint}</p>
+      </div>
+    );
+  }
+
+  if (!slots || slots.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border bg-surface p-6 text-center">
-        <p className="font-medium text-ink-muted">{error ?? t.empty}</p>
+        <p className="font-medium text-ink-muted">{t.empty}</p>
         <p className="mt-1 text-caption text-ink-soft">{t.try}</p>
       </div>
     );

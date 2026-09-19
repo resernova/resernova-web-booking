@@ -9,7 +9,9 @@
  *  - Display weight: 500 medium (NOT bold) — Linear / Stripe signature move.
  */
 import Link from "next/link";
+import { DateTime } from "luxon";
 import { Button } from "@/components/ui/Button";
+import { CASABLANCA_TZ } from "@/lib/utils/time";
 
 type Locale = "fr" | "en" | "ar";
 
@@ -73,18 +75,25 @@ export function LandingHero({ salonCount, locale = "fr" }: Props) {
   const t = labels[locale];
   const demo = t.demo;
 
+  // Compute demo dates: today + next 6 days, in the salon's timezone.
+  // Picked at render time so the dates always reflect "right now".
+  const today = DateTime.now().setZone(CASABLANCA_TZ).startOf("day");
+  const demoDays = Array.from({ length: 7 }, (_, i) =>
+    today.plus({ days: i + 1 }),
+  );
+
   return (
     <section className="relative bg-canvas">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-12 lg:py-32">
         {/* Left: 7-col text */}
         <div className="lg:col-span-7">
-          <p className="text-eyebrow uppercase tracking-wider text-accent">
+          <p className="font-mono text-eyebrow uppercase tracking-wider text-accent">
             {t.eyebrow}
           </p>
           <h1 className="mt-6 font-display text-display-md font-medium leading-tight text-ink md:text-display-lg">
             {t.headline}
           </h1>
-          <p className="mt-3 font-arabic text-xl text-ink-muted" dir="rtl">
+          <p className="mt-3 font-arabic text-h3 text-ink-muted" dir="rtl">
             {t.arabicLine}
           </p>
           <p className="mt-6 max-w-xl text-body-lg leading-relaxed text-ink-muted">
@@ -133,17 +142,21 @@ export function LandingHero({ salonCount, locale = "fr" }: Props) {
 
             {/* Day strip */}
             <div className="mt-4 flex gap-2">
-              {[15, 16, 17, 18, 19, 20, 21].map((d, i) => (
+              {demoDays.map((d, i) => (
                 <div
-                  key={d}
+                  key={d.toISODate()}
                   className={`flex h-12 shrink-0 flex-1 flex-col items-center justify-center rounded-md border text-caption ${
                     i === 1
                       ? "border-accent bg-accent-soft"
                       : "border-border bg-canvas"
                   }`}
                 >
-                  <span className="text-ink-muted">{demo.dayLabels[i]}</span>
-                  <span className="text-body font-medium text-ink">{d}</span>
+                  <span className="text-ink-muted">
+                    {demo.dayLabels[d.weekday - 1]}
+                  </span>
+                  <span className="text-body font-medium text-ink">
+                    {d.day}
+                  </span>
                 </div>
               ))}
             </div>
