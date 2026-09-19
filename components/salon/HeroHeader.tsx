@@ -172,7 +172,7 @@ function GradientFallback({ businessName }: { businessName: string }) {
       className="relative h-48 overflow-hidden sm:h-64"
       style={{
         backgroundImage:
-          "linear-gradient(135deg, #0F766E 0%, #14B8A6 50%, #5EEAD4 100%)",
+          "linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dim) 100%)",
       }}
     >
       <div

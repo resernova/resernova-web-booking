@@ -24,12 +24,6 @@ export function SalonCard({ salon, locale = "fr" }: Props) {
   const today = openToday(salon.openingHours ?? null, salon.timeZone);
   const showOpenBadge = today.isOpen || today.opensAt !== undefined;
 
-  // Generate a stable-ish gradient seed from slug for visual differentiation
-  const seed = salon.slug
-    .split("")
-    .reduce((acc, c) => (acc + c.charCodeAt(0)) % 360, 0);
-  const gradient = `linear-gradient(135deg, hsl(${seed}, 50%, 35%) 0%, hsl(${(seed + 40) % 360}, 45%, 50%) 100%)`;
-
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-base duration-base ease-standard hover:-translate-y-px">
       {/* Hero image or gradient fallback */}
@@ -47,12 +41,16 @@ export function SalonCard({ salon, locale = "fr" }: Props) {
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full" style={{ background: gradient }}>
-            <div className="flex h-full items-center justify-center">
-              <span className="font-display text-5xl font-medium text-ink-inverse/90 mix-blend-overlay">
-                {salon.businessName.charAt(0).toUpperCase()}
-              </span>
-            </div>
+          <div
+            className="flex h-full w-full items-center justify-center"
+            style={{
+              backgroundImage:
+                "linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dim) 100%)",
+            }}
+          >
+            <span className="font-display text-5xl font-medium text-ink-inverse/90 mix-blend-overlay">
+              {salon.businessName.charAt(0).toUpperCase()}
+            </span>
           </div>
         )}
 

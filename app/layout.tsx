@@ -3,7 +3,7 @@
  * Sentry init handled in lib/utils/sentry (loaded lazily).
  */
 import type { Metadata, Viewport } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Inter, Tajawal, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import "./focus.css";
@@ -12,13 +12,21 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
 });
 
-const poppins = Poppins({
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  display: "swap",
+  variable: "--font-tajawal",
+  weight: ["400", "500", "700"],
+});
+
+const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-poppins",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-jetbrains-mono",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -45,7 +53,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#1C6B6D",
+  themeColor: "#0F766E",
 };
 
 export default function RootLayout({
@@ -57,9 +65,10 @@ export default function RootLayout({
     <html
       lang="fr"
       dir="ltr"
-      className={`${inter.variable} ${poppins.variable}`}
+      data-theme="light"
+      className={`${inter.variable} ${tajawal.variable} ${jetbrains.variable}`}
     >
-      <body className="min-h-dvh bg-canvas text-ink antialiased">
+      <body className="min-h-dvh bg-canvas font-sans text-base text-ink antialiased">
         {children}
         <Toaster position="top-right" richColors closeButton />
       </body>
