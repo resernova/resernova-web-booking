@@ -1,7 +1,7 @@
 /**
  * Services catalog page — RSC shell + Client filter component.
  * Renders the full list of published services as a vertical list with
- * category chips + sort (Fresha-inspired).
+ * category chips + sort (Fresha-inspired), token-aligned.
  */
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -12,6 +12,7 @@ import {
   getServiceCategories,
 } from "@/server/queries/getPublishedServices";
 import { ServicesList } from "@/components/marketing/ServicesList";
+import { resolveLocale, type Locale } from "@/lib/i18n/config";
 
 type RouteParams = { slug: string };
 
@@ -34,10 +35,14 @@ export async function generateMetadata({
 
 export default async function ServicesPage({
   params,
+  searchParams,
 }: {
   params: Promise<RouteParams>;
+  searchParams: Promise<{ locale?: string }>;
 }) {
   const { slug } = await params;
+  const { locale: localeRaw } = await searchParams;
+  const locale: Locale = resolveLocale(localeRaw ?? null);
   const salon = await getSalonBySlug(slug);
   if (!salon) notFound();
 
@@ -46,12 +51,14 @@ export default async function ServicesPage({
     getServiceCategories(),
   ]);
 
+  const t = labels[locale];
+
   return (
-    <main className="min-h-dvh pb-16">
-      <div className="border-b border-zinc-200 bg-white px-4 pb-6 pt-8 sm:px-6">
+    <main className="min-h-dvh bg-canvas pb-16 text-ink">
+      <div className="border-b border-border bg-canvas px-4 pb-6 pt-8 sm:px-6">
         <Link
           href={`/${salon.publicSlug}`}
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+          className="inline-flex items-center gap-2 text-body-sm text-ink-muted transition-base duration-base ease-standard hover:text-ink"
         >
           <svg
             width="16"
@@ -70,12 +77,12 @@ export default async function ServicesPage({
           </svg>
           {salon.businessName}
         </Link>
-        <h1 className="mt-4 font-display text-3xl font-bold text-[var(--color-text)] sm:text-4xl">
-          Nos services
+        <h1 className="mt-4 font-display text-h2 font-medium leading-tight text-ink md:text-h1">
+          {t.heading}
         </h1>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-          {services.length} prestation{services.length > 1 ? "s" : ""}{" "}
-          disponible{services.length > 1 ? "s" : ""}
+        <p className="mt-2 text-body-sm text-ink-muted">
+          {services.length} {t.prestation(services.length)}{" "}
+          {t.disponible(services.length)}
         </p>
       </div>
 
@@ -84,8 +91,27 @@ export default async function ServicesPage({
           slug={salon.publicSlug}
           services={services}
           categories={categories}
+          locale={locale}
         />
       </div>
     </main>
   );
 }
+
+const labels = {
+  fr: {
+    heading: "Nos services",
+    prestation: (n: number) => (n > 1 ? "prestations" : "prestation"),
+    disponible: (n: number) => (n > 1 ? "disponibles" : "disponible"),
+  },
+  en: {
+    heading: "Our services",
+    prestation: (n: number) => (n > 1 ? "services" : "service"),
+    disponible: (n: number) => (n > 1 ? "available" : "available"),
+  },
+  ar: {
+    heading: "خدماتنا",
+    prestation: (n: number) => (n > 1 ? "خدمات" : "خدمة"),
+    disponible: (n: number) => (n > 1 ? "متاحة" : "متاح"),
+  },
+} as const;

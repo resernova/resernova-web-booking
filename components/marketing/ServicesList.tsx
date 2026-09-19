@@ -1,8 +1,12 @@
 /**
- * ServicesList — vertical list with category chips + sort (Fresha-inspired).
+ * ServicesList — vertical list with category chips + sort (Fresha-inspired),
+ * token-aligned.
  *
- * Same logic as the old ServicesGrid but renders flat list rows instead of
- * 2-column photo cards. Inline category chips + sort dropdown above the list.
+ * Same logic as before but rendering with the Linear-style palette:
+ *   - chips: bg-canvas / border-border / text-ink at rest, bg-accent /
+ *     text-ink-inverse when selected
+ *   - sort dropdown: bg-canvas with hairline border, focus ring in accent
+ *   - empty state: dashed border on bg-surface
  */
 "use client";
 
@@ -87,42 +91,30 @@ export function ServicesList({
       {/* Filter chips + sort */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2 overflow-x-auto">
-          <button
+          <Chip
+            active={activeCat === null}
             onClick={() => setActiveCat(null)}
-            aria-pressed={activeCat === null}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-              activeCat === null
-                ? "bg-[var(--color-primary-500)] text-white"
-                : "bg-white text-[var(--color-text)] border border-[var(--color-border)] hover:bg-[var(--color-primary-500)]/5"
-            }`}
-          >
-            {t.all}
-          </button>
+            label={t.all}
+          />
           {categories.map((c) => (
-            <button
+            <Chip
               key={c.category_id}
+              active={activeCat === c.category_id}
               onClick={() => setActiveCat(c.category_id)}
-              aria-pressed={activeCat === c.category_id}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                activeCat === c.category_id
-                  ? "bg-[var(--color-primary-500)] text-white"
-                  : "bg-white text-[var(--color-text)] border border-[var(--color-border)] hover:bg-[var(--color-primary-500)]/5"
-              }`}
-            >
-              {c.name}
-            </button>
+              label={c.name}
+            />
           ))}
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 text-sm">
-          <label htmlFor="sort" className="text-[var(--color-text-muted)]">
+        <div className="flex shrink-0 items-center gap-2 text-caption">
+          <label htmlFor="sort" className="text-ink-muted">
             {t.sortBy}
           </label>
           <select
             id="sort"
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1.5 text-sm font-medium focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20"
+            className="rounded-md border border-border bg-canvas px-3 py-1.5 text-body-sm font-medium text-ink transition-base duration-base ease-standard focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             <option value="price-asc">{t.sortPriceAsc}</option>
             <option value="price-desc">{t.sortPriceDesc}</option>
@@ -134,7 +126,7 @@ export function ServicesList({
 
       {/* List */}
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-white p-12 text-center text-[var(--color-text-muted)]">
+        <p className="rounded-lg border border-dashed border-border bg-surface p-12 text-center text-ink-muted">
           {t.empty}
         </p>
       ) : (
@@ -161,5 +153,30 @@ export function ServicesList({
         </div>
       )}
     </>
+  );
+}
+
+function Chip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`shrink-0 rounded-md border px-4 py-2 text-body-sm font-medium transition-base duration-base ease-standard ${
+        active
+          ? "border-accent bg-accent text-ink-inverse"
+          : "border-border bg-canvas text-ink hover:border-ink-muted hover:bg-surface"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
