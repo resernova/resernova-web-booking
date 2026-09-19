@@ -1,6 +1,9 @@
 /**
  * Booking wizard page — server-rendered shell.
  * Loads service + provider + staff, then renders the client wizard.
+ *
+ * Token-aligned with the Linear-style editorial language: hairline rules,
+ * restrained type scale, accent reserved for the wizard's primary CTA.
  */
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -9,6 +12,7 @@ import { getSalonBySlug } from "@/server/queries/getSalonBySlug";
 import { getServiceById } from "@/server/queries/getPublishedServices";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { BookingWizard } from "@/components/booking/BookingWizard";
+import { resolveLocale, type Locale } from "@/lib/i18n/config";
 
 type RouteParams = { slug: string; serviceId: string };
 
@@ -32,10 +36,14 @@ export async function generateMetadata({
 
 export default async function BookPage({
   params,
+  searchParams,
 }: {
   params: Promise<RouteParams>;
+  searchParams: Promise<{ locale?: string }>;
 }) {
   const { slug, serviceId } = await params;
+  const { locale: localeRaw } = await searchParams;
+  const locale: Locale = resolveLocale(localeRaw ?? null);
   const salon = await getSalonBySlug(slug);
   if (!salon) notFound();
 
@@ -55,14 +63,22 @@ export default async function BookPage({
     name: `Praticien #${s.id.slice(0, 4)}`, // TODO: lookup user name in Phase 2
   }));
 
+  const t = labels[locale];
+
   return (
-    <main className="min-h-dvh pb-12">
-      <div className="gradient-hero rounded-b-[36px] px-4 pb-8 pt-10 text-white sm:px-6">
+    <main className="min-h-dvh bg-canvas pb-12 text-ink">
+      <header className="border-b border-border bg-canvas px-4 pb-6 pt-8 sm:px-6">
         <Link
           href={`/${salon.publicSlug}/services`}
-          className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white"
+          className="inline-flex items-center gap-2 text-body-sm text-ink-muted transition-base duration-base ease-standard hover:text-ink"
         >
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden
+          >
             <path
               d="M13 5l-5 5 5 5"
               stroke="currentColor"
@@ -73,10 +89,13 @@ export default async function BookPage({
           </svg>
           {salon.businessName}
         </Link>
-        <h1 className="mt-3 font-display text-2xl font-semibold sm:text-3xl">
-          Réserver
+        <p className="mt-3 font-mono text-eyebrow uppercase tracking-wider text-accent">
+          {t.headingEyebrow}
+        </p>
+        <h1 className="mt-1 font-display text-h2 font-medium leading-tight text-ink md:text-h1">
+          {t.heading}
         </h1>
-      </div>
+      </header>
 
       <BookingWizard
         slug={salon.publicSlug}
@@ -85,7 +104,14 @@ export default async function BookPage({
         serviceDurationMinutes={service.durationMinutes}
         servicePrice={service.price}
         staff={staffList}
+        locale={locale}
       />
     </main>
   );
 }
+
+const labels = {
+  fr: { headingEyebrow: "Réservation", heading: "Réserver" },
+  en: { headingEyebrow: "Booking", heading: "Book" },
+  ar: { headingEyebrow: "الحجز", heading: "احجز" },
+} as const;

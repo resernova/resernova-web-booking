@@ -1,5 +1,5 @@
 /**
- * ClientDetailsForm — RHF + ZodResolver.
+ * ClientDetailsForm — RHF + ZodResolver, token-aligned.
  * Includes honeypot field (hidden) + min-time-on-page gate.
  */
 "use client";
@@ -34,6 +34,7 @@ const labels = {
     emailInvalid: "Adresse e-mail invalide",
     nameMin: "Le nom doit faire au moins 2 caractères",
     requestMax: "Maximum 500 caractères",
+    waitMsg: "Veuillez patienter quelques secondes avant de soumettre...",
   },
   en: {
     fullName: "Full name",
@@ -52,6 +53,7 @@ const labels = {
     emailInvalid: "Invalid email address",
     nameMin: "Name must be at least 2 characters",
     requestMax: "Maximum 500 characters",
+    waitMsg: "Please wait a few seconds before submitting...",
   },
   ar: {
     fullName: "الاسم الكامل",
@@ -70,6 +72,7 @@ const labels = {
     emailInvalid: "عنوان بريد إلكتروني غير صالح",
     nameMin: "يجب أن يكون الاسم حرفين على الأقل",
     requestMax: "الحد الأقصى 500 حرف",
+    waitMsg: "يرجى الانتظار بضع ثوانٍ قبل الإرسال...",
   },
 };
 
@@ -152,7 +155,7 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
           autoComplete="email"
           placeholder={t.emailPlaceholder}
           aria-invalid={!!errors.clientEmail}
-          className={inputCls(!!errors.clientEmail)}
+          className={inputCls(!!errors.clientPhone)}
         />
       </Field>
 
@@ -191,13 +194,15 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
       </Field>
 
       {/* WhatsApp opt-in — explicit checkbox (not pre-checked) */}
-      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--color-border)] bg-white p-4">
+      <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-canvas p-4">
         <input
           {...register("whatsappOptIn")}
           type="checkbox"
-          className="mt-1 size-5 rounded border-[var(--color-border)] accent-[var(--color-accent-500)]"
+          className="mt-1 size-5 rounded border-border accent-accent"
         />
-        <span className="text-sm leading-relaxed">{t.whatsappOptIn}</span>
+        <span className="text-body-sm leading-relaxed text-ink">
+          {t.whatsappOptIn}
+        </span>
       </label>
 
       {/* Honeypot — hidden from users; bots fill all fields */}
@@ -215,12 +220,7 @@ export function ClientDetailsForm({ form, staff, locale }: Props) {
       </div>
 
       {!timeElapsed && (
-        <p className="text-xs text-[var(--color-text-muted)]">
-          {locale === "fr" &&
-            "Veuillez patienter quelques secondes avant de soumettre..."}
-          {locale === "en" && "Please wait a few seconds before submitting..."}
-          {locale === "ar" && "يرجى الانتظار بضع ثوانٍ قبل الإرسال..."}
-        </p>
+        <p className="text-caption text-ink-muted">{t.waitMsg}</p>
       )}
     </form>
   );
@@ -239,17 +239,17 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-sm font-semibold text-[var(--color-text)]">
+      <label className="mb-1 block text-body-sm font-medium text-ink">
         {label}
         {required && (
-          <span aria-hidden className="ml-1 text-[var(--color-error)]">
+          <span aria-hidden className="ml-1 text-error">
             *
           </span>
         )}
       </label>
       {children}
       {error && (
-        <p role="alert" className="mt-1 text-xs text-[var(--color-error)]">
+        <p role="alert" className="mt-1 text-caption text-error">
           {error}
         </p>
       )}
@@ -259,10 +259,11 @@ function Field({
 
 function inputCls(hasError: boolean): string {
   return [
-    "block w-full rounded-2xl border bg-white px-4 py-3 text-base",
-    "placeholder:text-zinc-400 focus:outline-none focus:ring-2",
+    "block w-full rounded-md border bg-canvas px-4 py-3 text-base text-ink",
+    "placeholder:text-ink-soft focus:outline-none focus:ring-2",
+    "transition-base duration-base ease-standard",
     hasError
-      ? "border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[var(--color-error)]/20"
-      : "border-[var(--color-border)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)]/20",
+      ? "border-error focus:border-error focus:ring-error/20"
+      : "border-border focus:border-accent focus:ring-accent/20",
   ].join(" ");
 }

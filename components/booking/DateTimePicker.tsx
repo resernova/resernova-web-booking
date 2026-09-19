@@ -114,7 +114,7 @@ export function DateTimePicker({ value, onChange, locale }: Props) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
+        <div className="font-mono text-eyebrow uppercase tracking-wider text-ink-muted">
           {value
             ? (() => {
                 const dt = DateTime.fromISO(value, { zone: CASABLANCA_TZ });
@@ -128,7 +128,7 @@ export function DateTimePicker({ value, onChange, locale }: Props) {
             onClick={() => setWindowStart(Math.max(0, windowStart - 7))}
             disabled={!canGoPrev}
             aria-label={t.prev}
-            className="grid size-8 place-items-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+            className="grid size-8 place-items-center rounded-md text-ink-muted transition-base duration-base ease-standard hover:bg-surface disabled:cursor-not-allowed disabled:opacity-30"
           >
             <svg
               width="16"
@@ -151,7 +151,7 @@ export function DateTimePicker({ value, onChange, locale }: Props) {
             onClick={() => setWindowStart(windowStart + 7)}
             disabled={!canGoNext}
             aria-label={t.next}
-            className="grid size-8 place-items-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+            className="grid size-8 place-items-center rounded-md text-ink-muted transition-base duration-base ease-standard hover:bg-surface disabled:cursor-not-allowed disabled:opacity-30"
           >
             <svg
               width="16"
@@ -189,19 +189,19 @@ export function DateTimePicker({ value, onChange, locale }: Props) {
               role="option"
               aria-selected={isSelected}
               onClick={() => onChange(iso)}
-              className={`flex shrink-0 flex-col items-center justify-center rounded-xl border px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
+              className={`flex shrink-0 flex-col items-center justify-center rounded-md border px-3 py-2 transition-base duration-base ease-standard sm:px-4 sm:py-3 ${
                 isSelected
-                  ? "border-transparent bg-[var(--color-primary-500)] text-white shadow-button"
+                  ? "border-accent bg-accent text-ink-inverse shadow-button"
                   : isToday
-                    ? "border-[var(--color-primary-500)] bg-white text-[var(--color-text)]"
-                    : "border-zinc-200 bg-white text-[var(--color-text)] hover:border-[var(--color-primary-500)]"
+                    ? "border-accent bg-canvas text-ink"
+                    : "border-border bg-canvas text-ink hover:border-ink-muted"
               }`}
               style={{ minWidth: "64px" }}
             >
               <span className="text-[10px] font-medium uppercase tracking-wider opacity-80">
                 {t.weekdays[d.weekday - 1]}
               </span>
-              <span className="mt-0.5 text-lg font-bold leading-none">
+              <span className="mt-0.5 text-lg font-medium leading-none">
                 {d.day}
               </span>
               <span className="mt-0.5 text-[10px] font-medium opacity-70">

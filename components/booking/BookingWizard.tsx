@@ -1,5 +1,5 @@
 /**
- * BookingWizard — single-page split layout (Fresha-inspired).
+ * BookingWizard — single-page split layout (Fresha-inspired), token-aligned.
  *
  * Replaces the old 4-step state machine. All sections visible at once on
  * desktop (sidebar with summary + main column with date/time + form).
@@ -80,6 +80,9 @@ const labels = {
     durationLabel: (m: number) => `${m} min`,
     anyProfessional: "Tout professionnel",
     backToSalon: "Retour au salon",
+    pickSlot: "Veuillez choisir un créneau",
+    rateLimited: "Trop de tentatives. Réessayez dans une minute.",
+    invalidInput: "Informations invalides",
   },
   en: {
     summary: "Summary",
@@ -93,6 +96,9 @@ const labels = {
     durationLabel: (m: number) => `${m} min`,
     anyProfessional: "Any professional",
     backToSalon: "Back to salon",
+    pickSlot: "Please pick a slot",
+    rateLimited: "Too many attempts. Try again in a minute.",
+    invalidInput: "Invalid information",
   },
   ar: {
     summary: "الملخص",
@@ -106,6 +112,9 @@ const labels = {
     durationLabel: (m: number) => `${m} دقيقة`,
     anyProfessional: "أي محترف",
     backToSalon: "العودة إلى الصالون",
+    pickSlot: "الرجاء اختيار وقت",
+    rateLimited: "محاولات كثيرة. حاول بعد دقيقة.",
+    invalidInput: "بيانات غير صحيحة",
   },
 };
 
@@ -157,7 +166,7 @@ export function BookingWizard({
 
   async function onSubmit(values: CreateBookingPayload) {
     if (!selectedSlot) {
-      toast.error("Veuillez choisir un créneau");
+      toast.error(t.pickSlot);
       return;
     }
     setSubmitting(true);
@@ -188,9 +197,9 @@ export function BookingWizard({
           toast.error(result.error.message);
           setSelectedSlot(null);
         } else if (code === "RATE_LIMITED") {
-          toast.error("Trop de tentatives. Réessayez dans une minute.");
+          toast.error(t.rateLimited);
         } else if (code === "INVALID_INPUT") {
-          toast.error("Informations invalides");
+          toast.error(t.invalidInput);
         } else {
           toast.error(t.networkError);
         }
@@ -208,27 +217,27 @@ export function BookingWizard({
   // Sidebar summary (sticky on desktop)
   const Summary = (
     <aside className="lg:sticky lg:top-6">
-      <h2 className="font-display text-lg font-semibold text-[var(--color-text)]">
+      <p className="font-mono text-eyebrow uppercase tracking-wider text-accent">
         {t.summary}
-      </h2>
-      <div className="mt-4 rounded-2xl border border-[var(--color-border)] bg-white p-5">
+      </p>
+      <div className="mt-3 rounded-lg border border-border bg-card p-5 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="size-12 shrink-0 rounded-xl bg-gradient-to-br from-[var(--color-primary-100)] to-[var(--color-primary-500)]" />
+          <div className="size-12 shrink-0 rounded-md bg-accent-soft" />
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-semibold text-[var(--color-text)]">
+            <h3 className="truncate font-display text-body font-medium text-ink">
               {serviceName}
             </h3>
-            <p className="text-sm text-[var(--color-text-muted)]">
+            <p className="font-mono text-caption text-ink-muted">
               ⏱ {t.durationLabel(serviceDurationMinutes)}
             </p>
           </div>
         </div>
 
         {staff.length > 0 && (
-          <div className="mt-4 border-t border-zinc-100 pt-4">
+          <div className="mt-4 border-t border-border pt-4">
             <label
               htmlFor="staff-select"
-              className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]"
+              className="font-mono text-eyebrow uppercase tracking-wider text-ink-muted"
             >
               {t.anyProfessional}
             </label>
@@ -236,7 +245,7 @@ export function BookingWizard({
               id="staff-select"
               value={selectedStaffId}
               onChange={(e) => setSelectedStaffId(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)]/20"
+              className="mt-2 w-full rounded-md border border-border bg-canvas px-3 py-2 text-body-sm font-medium text-ink transition-base duration-base ease-standard focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="">{t.anyProfessional}</option>
               {staff.map((s) => (
@@ -249,12 +258,10 @@ export function BookingWizard({
         )}
 
         {selectedSlot && (
-          <div className="mt-4 border-t border-zinc-100 pt-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--color-text-muted)]">
-                {t.totalLabel}
-              </span>
-              <span className="font-display text-lg font-bold text-[var(--color-text)]">
+          <div className="mt-4 border-t border-border pt-4">
+            <div className="flex items-center justify-between text-body-sm">
+              <span className="text-ink-muted">{t.totalLabel}</span>
+              <span className="font-display text-h4 font-medium text-ink">
                 {formatMAD(servicePrice, locale)}
               </span>
             </div>
@@ -268,10 +275,10 @@ export function BookingWizard({
   const Form = (
     <form
       onSubmit={form.handleSubmit(onSubmit)}
-      className="flex flex-col gap-6 rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-card sm:p-8"
+      className="flex flex-col gap-6 rounded-lg border border-border bg-card p-5 shadow-sm sm:p-8"
     >
       <section>
-        <h2 className="font-display text-lg font-semibold text-[var(--color-text)]">
+        <h2 className="font-display text-h4 font-medium text-ink">
           {t.dateTime}
         </h2>
         <div className="mt-4">
@@ -295,8 +302,8 @@ export function BookingWizard({
         )}
       </section>
 
-      <section className="border-t border-zinc-100 pt-6">
-        <h2 className="font-display text-lg font-semibold text-[var(--color-text)]">
+      <section className="border-t border-border pt-6">
+        <h2 className="font-display text-h4 font-medium text-ink">
           {t.details}
         </h2>
         <div className="mt-4">
@@ -304,11 +311,11 @@ export function BookingWizard({
         </div>
       </section>
 
-      <div className="border-t border-zinc-100 pt-6">
+      <div className="border-t border-border pt-6">
         <button
           type="submit"
           disabled={!canSubmit}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--color-accent-500)] px-7 py-4 font-semibold text-white shadow-button transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-7 py-4 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting && (
             <svg
@@ -337,7 +344,7 @@ export function BookingWizard({
         </button>
         <a
           href={`/${slug}`}
-          className="mt-3 block text-center text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+          className="mt-3 block text-center text-body-sm text-ink-muted transition-base duration-base ease-standard hover:text-ink"
         >
           {t.backToSalon}
         </a>

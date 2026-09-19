@@ -1,7 +1,6 @@
 /**
  * SlotGrid — 4-col grid of available 30-min slots for the selected date.
- * Calls /api/public/availability (Route Handler — implemented in Week 4)
- * or the Supabase RPC directly as a fallback.
+ * Token-aligned (Linear-style).
  */
 "use client";
 
@@ -95,27 +94,25 @@ export function SlotGrid({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-3 py-8 text-[var(--color-text-muted)]">
+      <div className="flex flex-col items-center gap-3 py-8 text-ink-muted">
         <div className="grid grid-cols-3 gap-2">
           {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
-              className="size-16 animate-pulse rounded-2xl bg-zinc-100"
+              className="size-16 animate-pulse rounded-md bg-surface"
             />
           ))}
         </div>
-        <p className="text-sm">{t.loading}</p>
+        <p className="text-body-sm">{t.loading}</p>
       </div>
     );
   }
 
   if (error || !slots || slots.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-zinc-50 p-6 text-center">
-        <p className="font-medium text-[var(--color-text-muted)]">
-          {error ?? t.empty}
-        </p>
-        <p className="mt-1 text-xs text-[var(--color-text-muted)]">{t.try}</p>
+      <div className="rounded-lg border border-dashed border-border bg-surface p-6 text-center">
+        <p className="font-medium text-ink-muted">{error ?? t.empty}</p>
+        <p className="mt-1 text-caption text-ink-soft">{t.try}</p>
       </div>
     );
   }
@@ -144,14 +141,20 @@ export function SlotGrid({
             onClick={() =>
               onSlotChange({ start: slot.slot_start, end: slot.slot_end })
             }
-            className={`relative flex flex-col items-center rounded-2xl border-2 px-2 py-3 text-center transition-all ${
+            className={`relative flex flex-col items-center rounded-md border-2 px-2 py-3 text-center transition-base duration-base ease-standard ${
               isSelected
-                ? "border-[var(--color-primary-500)] bg-[var(--color-primary-500)]/5 shadow-card"
-                : "border-[var(--color-border)] bg-white hover:border-[var(--color-primary-500)]/40"
+                ? "border-accent bg-accent-soft shadow-sm"
+                : "border-border bg-canvas hover:border-accent/40"
             }`}
           >
-            <span className="text-base font-bold">{time}</span>
-            <span className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+            <span
+              className={`text-body font-medium ${
+                isSelected ? "text-accent" : "text-ink"
+              }`}
+            >
+              {time}
+            </span>
+            <span className="mt-0.5 text-caption text-ink-muted">
               {t.remaining(remaining)}
             </span>
           </button>
