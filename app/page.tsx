@@ -15,6 +15,7 @@
 import Link from "next/link";
 import { LandingHero } from "@/components/marketing/LandingHero";
 import { SalonCard } from "@/components/marketing/SalonCard";
+import { Button } from "@/components/ui/Button";
 import { getAllPublicSalons } from "@/server/queries/getAllPublicSalons";
 
 export const revalidate = 300;
@@ -128,11 +129,8 @@ function EmptyState() {
       <p className="mt-2 text-body text-ink-muted">
         Vous dirigez un salon de beauté au Maroc ?
       </p>
-      <a
-        href="mailto:contact@resernova.com"
-        className="mt-6 inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim hover:-translate-y-px"
-      >
-        Activer ReserNova pour mon salon
+      <a href="mailto:contact@resernova.com" className="mt-6 inline-flex">
+        <Button variant="primary">Activer ReserNova pour mon salon</Button>
       </a>
     </div>
   );

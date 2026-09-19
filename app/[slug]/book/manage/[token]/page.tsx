@@ -10,6 +10,7 @@
 import { DateTime } from "luxon";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Button } from "@/components/ui/Button";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { CASABLANCA_TZ } from "@/lib/utils/time";
 import { getSalonBySlug } from "@/server/queries/getSalonBySlug";
@@ -124,11 +125,10 @@ export default async function ManagePage({
         <p className="mt-4 text-body-lg leading-relaxed text-ink-muted">
           {labels.invalidTokenBody}
         </p>
-        <Link
-          href={`/${slug}`}
-          className="mt-8 inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim"
-        >
-          {labels.browserBack}
+        <Link href={`/${slug}`} className="mt-8 inline-flex">
+          <Button variant="primary" size="md">
+            {labels.browserBack}
+          </Button>
         </Link>
       </main>
     );

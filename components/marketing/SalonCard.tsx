@@ -6,6 +6,7 @@
  */
 import Link from "next/link";
 import { openToday } from "@/lib/utils/time";
+import { Button } from "@/components/ui/Button";
 import type { PublicSalonCard } from "@/server/queries/getAllPublicSalons";
 
 type Props = {
@@ -106,26 +107,25 @@ export function SalonCard({ salon, locale = "fr" }: Props) {
         )}
 
         <div className="mt-auto pt-4">
-          <Link
-            href={`/${salon.slug}`}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-body-sm font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:-translate-y-px"
-          >
-            {t.cta}
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M7 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <Link href={`/${salon.slug}`} className="inline-flex w-full">
+            <Button variant="primary" size="sm" fullWidth>
+              {t.cta}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M7 5l5 5-5 5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
           </Link>
         </div>
       </div>

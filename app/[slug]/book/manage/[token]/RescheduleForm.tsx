@@ -11,6 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { DateTimePicker } from "@/components/booking/DateTimePicker";
 import { SlotGrid } from "@/components/booking/SlotGrid";
+import { Button } from "@/components/ui/Button";
 import { rescheduleBooking } from "@/server/actions/rescheduleBooking";
 import type { Locale } from "@/lib/i18n/config";
 import type { ManageLabels } from "@/lib/i18n/labels";
@@ -114,13 +115,16 @@ export function RescheduleForm({
               locale={locale}
             />
           )}
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
+            fullWidth
             disabled={!selectedSlot || submitting}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-5 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-50"
+            loading={submitting}
           >
-            {submitting ? "..." : labels.rescheduleSubmit}
-          </button>
+            {labels.rescheduleSubmit}
+          </Button>
         </form>
       ) : (
         <div className="rounded-lg border border-border bg-accent-soft p-6">

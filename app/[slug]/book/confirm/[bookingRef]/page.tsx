@@ -12,6 +12,7 @@
 import { notFound } from "next/navigation";
 import { DateTime } from "luxon";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { buildIcs } from "@/lib/utils/ics";
 import { CASABLANCA_TZ } from "@/lib/utils/time";
@@ -157,38 +158,38 @@ export default async function ConfirmPage({
         <a
           href={icsDataUrl}
           download={`reservation-${refDisplay}.ics`}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-accent px-5 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim"
+          className="inline-flex"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M12 5v14m-7-7l7 7 7-7"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {t.calendarCta}
+          <Button variant="primary" size="md">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden
+            >
+              <path
+                d="M12 5v14m-7-7l7 7 7-7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {t.calendarCta}
+          </Button>
         </a>
         {manageHref && (
-          <Link
-            href={manageHref}
-            className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-canvas px-5 py-3 text-body font-medium text-ink transition-base duration-base ease-standard hover:border-ink-muted hover:bg-surface"
-          >
-            {t.manageCta}
+          <Link href={manageHref} className="inline-flex">
+            <Button variant="secondary" size="md">
+              {t.manageCta}
+            </Button>
           </Link>
         )}
-        <Link
-          href={`/${slug}`}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-canvas px-5 py-3 text-body font-medium text-ink-muted transition-base duration-base ease-standard hover:text-ink"
-        >
-          {t.backCta}
+        <Link href={`/${slug}`} className="inline-flex">
+          <Button variant="ghost" size="md">
+            {t.backCta}
+          </Button>
         </Link>
       </div>
 

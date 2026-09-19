@@ -13,6 +13,7 @@
  *    utility class).
  */
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { openToday, type LocationAvailability } from "@/lib/utils/time";
 
 type Locale = "fr" | "en" | "ar";
@@ -90,26 +91,25 @@ export function HeroHeader({
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Link
-            href={`/${slug}/book`}
-            className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim hover:-translate-y-px"
-          >
-            {t.cta}
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M7 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <Link href={`/${slug}/book`} className="inline-flex">
+            <Button variant="primary" size="md">
+              {t.cta}
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M7 5l5 5-5 5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
           </Link>
           <a
             href="#address"

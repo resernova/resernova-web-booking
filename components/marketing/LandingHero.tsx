@@ -9,6 +9,7 @@
  *  - Display weight: 500 medium (NOT bold) — Linear / Stripe signature move.
  */
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 type Locale = "fr" | "en" | "ar";
 
@@ -91,18 +92,16 @@ export function LandingHero({ salonCount, locale = "fr" }: Props) {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Link
-              href="/salons"
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 text-base font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim hover:-translate-y-px"
-            >
-              {t.ctaPrimary}
-              <span aria-hidden>→</span>
+            <Link href="/salons" className="inline-flex">
+              <Button variant="primary" size="md">
+                {t.ctaPrimary}
+                <span aria-hidden>→</span>
+              </Button>
             </Link>
-            <Link
-              href="#how"
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-canvas px-6 py-3 text-base font-medium text-ink transition-base duration-base ease-standard hover:border-ink-muted hover:bg-surface"
-            >
-              {t.ctaSecondary}
+            <Link href="#how" className="inline-flex">
+              <Button variant="secondary" size="md">
+                {t.ctaSecondary}
+              </Button>
             </Link>
           </div>
 

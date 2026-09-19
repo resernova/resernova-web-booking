@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { CreateBookingPayload } from "@/lib/validation/schemas";
 import { createBooking } from "@/server/actions/createBooking";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 import { DateTimePicker } from "./DateTimePicker";
 import { SlotGrid } from "./SlotGrid";
 import { ClientDetailsForm } from "./ClientDetailsForm";
@@ -312,36 +313,17 @@ export function BookingWizard({
       </section>
 
       <div className="border-t border-border pt-6">
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
           disabled={!canSubmit}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-7 py-4 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-50"
+          loading={submitting}
+          locale={locale}
         >
-          {submitting && (
-            <svg
-              className="size-5 animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="3"
-                opacity="0.25"
-              />
-              <path
-                d="M12 2a10 10 0 0110 10"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
-          )}
           {submitting ? t.submitting : t.confirm}
-        </button>
+        </Button>
         <a
           href={`/${slug}`}
           className="mt-3 block text-center text-body-sm text-ink-muted transition-base duration-base ease-standard hover:text-ink"

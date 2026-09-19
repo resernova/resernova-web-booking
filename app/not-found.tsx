@@ -1,12 +1,13 @@
 /**
  * Branded 404 — Linear editorial.
- * Monospace "404" label + bilingual subtitle + 2 CTAs.
+ * Monospace "404" label + bilingual subtitle + 2 CTAs via Button primitive.
  */
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-screen place-items-center bg-canvas px-4 py-16">
+    <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-16">
       <div className="w-full max-w-md text-center">
         <p className="font-mono text-eyebrow uppercase tracking-wider text-accent">
           404
@@ -21,18 +22,16 @@ export default function NotFound() {
           Le salon ou la réservation que vous cherchez n&apos;existe pas.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:bg-accent-dim hover:-translate-y-px"
-          >
-            <span aria-hidden>←</span>
-            Retour à l&apos;accueil
+          <Link href="/" className="inline-flex">
+            <Button variant="primary" size="md">
+              <span aria-hidden>←</span>
+              Retour à l&apos;accueil
+            </Button>
           </Link>
-          <Link
-            href="/salons"
-            className="inline-flex items-center gap-2 rounded-md border border-border bg-canvas px-6 py-3 text-body font-medium text-ink transition-base duration-base ease-standard hover:border-ink-muted hover:bg-surface"
-          >
-            Trouver un salon
+          <Link href="/salons" className="inline-flex">
+            <Button variant="secondary" size="md">
+              Trouver un salon
+            </Button>
           </Link>
         </div>
       </div>

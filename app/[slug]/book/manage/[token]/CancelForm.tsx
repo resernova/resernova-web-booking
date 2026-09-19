@@ -12,6 +12,8 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { cancelBooking } from "@/server/actions/cancelBooking";
 import type { ManageLabels } from "@/lib/i18n/labels";
 
@@ -79,31 +81,26 @@ export function CancelForm({ manageToken, labels, slug }: Props) {
 
       {!newToken ? (
         <form onSubmit={onSubmit} className="space-y-5">
-          <div>
-            <label
-              htmlFor="reason"
-              className="mb-1 block text-body-sm font-medium text-ink"
-            >
-              {labels.cancelReasonLabel}
-            </label>
-            <textarea
-              id="reason"
-              rows={3}
-              maxLength={500}
-              placeholder={labels.cancelReasonPlaceholder}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="block w-full rounded-md border border-border bg-canvas px-3 py-2 text-body text-ink placeholder:text-ink-soft transition-base duration-base ease-standard focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
+          <Input
+            multiline
+            rows={3}
+            maxLength={500}
+            label={labels.cancelReasonLabel}
+            placeholder={labels.cancelReasonPlaceholder}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
 
-          <button
+          <Button
             type="submit"
+            variant="danger"
+            size="md"
+            fullWidth
             disabled={submitting}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-error px-5 py-3 text-body font-medium text-ink-inverse shadow-button transition-base duration-base ease-standard hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            loading={submitting}
           >
-            {submitting ? "..." : labels.cancelSubmit}
-          </button>
+            {labels.cancelSubmit}
+          </Button>
         </form>
       ) : (
         <div className="rounded-lg border border-border bg-accent-soft p-6">
